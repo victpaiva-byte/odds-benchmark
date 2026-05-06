@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Odds Benchmark — Estrelabet</title>
+<style>
+:root {
+  --red:    #dc2626;
+  --red-d:  #991b1b;
+  --green:  #16a34a;
+  --yellow: #d97706;
+  --blue:   #2563eb;
+  --bg:     #f8fafc;
+  --card:   #ffffff;
+  --border: #e2e8f0;
+  --text:   #0f172a;
+  --muted:  #64748b;
+  --font:   -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── Header ────────────────────────────────────────── */
+header {
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-d) 100%);
+  color: #fff; padding: 18px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+header h1 { font-size: 18px; font-weight: 700; }
+header .sub { font-size: 12px; opacity: .85; margin-top: 2px; }
+.header-right { display: flex; gap: 12px; align-items: center; }
+.btn {
+  padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 600; transition: opacity .15s;
+}
+.btn:hover { opacity: .85; }
+.btn-refresh { background: rgba(255,255,255,.22); color: #fff; }
+.btn-trigger { background: #fff; color: var(--red); }
+#status-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block;
+}
+#status-dot.loading { background: #facc15; animation: pulse 1s infinite; }
+#status-dot.error   { background: #f87171; }
+@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.4 } }
+#last-updated { font-size: 11px; opacity: .8; }
+
+/* ── KPIs ──────────────────────────────────────────── */
+.kpi-bar {
+  display: flex; gap: 12px; padding: 16px 28px; overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+.kpi {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 18px; white-space: nowrap; min-width: 160px;
+}
+.kpi .label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 600; }
+.kpi .val   { font-size: 24px; font-weight: 700; margin: 4px 0 2px; }
+.kpi .delta { font-size: 11px; color: var(--muted); }
+.kpi.highlight { background: linear-gradient(135deg,#fef3c7,#fde68a); border-color: #fcd34d; }
+.kpi.highlight .val { color: #92400e; }
+
+/* ── Filters ───────────────────────────────────────── */
+.filters {
+  display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 28px;
+  border-bottom: 1px solid var(--border); background: var(--card);
+}
+.filters label { font-size: 11px; font-weight: 600; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.filters select, .filters input {
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 12px; background: var(--bg); color: var(--text); min-width: 140px;
+}
+.toggle-group { display: flex; gap: 6px; align-items: flex-end; }
+.toggle-btn {
+  padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg); font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);
+}
+.toggle-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* ── Table ─────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; padding: 0 28px 40px; }
+table {
+  width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px;
+  min-width: 820px;
+}
+thead th {
+  position: sticky; top: 62px; background: #1e293b; color: #fff;
+  padding: 10px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; text-align: left; white-space: nowrap; z-index: 10;
+}
+thead th.book { text-align: center; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+tbody tr:hover { background: #f1f5f9; }
+tbody tr.estrela-best { background: #f0fdf4; }
+tbody tr.estrela-best:hover { background: #dcfce7; }
+tbody tr.estrela-worst { background: #fff7ed; }
+tbody tr.estrela-worst:hover { background: #ffedd5; }
+
+td { padding: 9px 10px; vertical-align: middle; }
+.td-event { max-width: 220px; }
+.event-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.event-meta { font-size: 10px; color: var(--muted); margin-top: 2px; white-space: nowrap; }
+.td-datetime { white-space: nowrap; font-size: 12px; color: var(--muted); }
+.td-market { font-size: 12px; }
+.td-sel { font-size: 12px; color: var(--muted); max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.td-odd { text-align: center; }
+.odd-badge {
+  display: inline-flex; flex-direction: column; align-items: center;
+  padding: 4px 10px; border-radius: 6px; min-width: 56px;
+  background: #f1f5f9; font-weight: 700; font-size: 14px; color: var(--text);
+}
+.odd-badge.best { background: #dcfce7; color: #15803d; box-shadow: 0 0 0 1.5px #16a34a; }
+.odd-badge.worst { background: #fee2e2; color: #b91c1c; }
+.odd-badge.estrela { background: #fef3c7; color: #92400e; }
+.odd-badge.estrela.best { background: #bbf7d0; color: #166534; box-shadow: 0 0 0 2px #15803d; }
+.odd-badge small { font-size: 9px; font-weight: 500; opacity: .7; }
+.no-odd { color: #cbd5e1; font-size: 11px; text-align: center; }
+.winner-tag {
+  display: inline-block; background: #dcfce7; color: #15803d;
+  border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700;
+  margin-left: 6px; white-space: nowrap;
+}
+.loser-tag {
+  display: inline-block; background: #fee2e2; color: #b91c1c;
+  border-radius: 999px; padding: 1px 7px; font-size: 10px; font-weight: 700;
+  margin-left: 6px; white-space: nowrap;
+}
+
+/* ── Empty / Loading ───────────────────────────────── */
+.empty {
+  text-align: center; padding: 60px 20px; color: var(--muted);
+}
+.empty .icon { font-size: 48px; margin-bottom: 12px; }
+.empty h3 { font-size: 16px; margin-bottom: 6px; }
+.spinner {
+  display: inline-block; width: 20px; height: 20px; border: 3px solid #e2e8f0;
+  border-top-color: var(--red); border-radius: 50%;
+  animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Footer ────────────────────────────────────────── */
+footer { padding: 20px 28px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
+
+@media (max-width: 640px) {
+  header { flex-direction: column; align-items: flex-start; }
+  .kpi-bar { padding: 12px 16px; }
+  .filters, .table-wrap { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Super Odds Benchmark</h1>
+    <div class="sub">Estrelabet vs Superbet · Betano · Sportingbet · Bet365 — somente jogos futuros</div>
+  </div>
+  <div class="header-right">
+    <span id="status-dot" class="loading"></span>
+    <span id="last-updated">Carregando…</span>
+    <button class="btn btn-refresh" onclick="loadData()">↺ Atualizar</button>
+    <button class="btn btn-trigger" onclick="triggerScrape()">▶ Coletar agora</button>
+  </div>
+</header>
+
+<div class="kpi-bar">
+  <div class="kpi highlight">
+    <div class="label">Mercados analisados</div>
+    <div class="val" id="kpi-total">—</div>
+    <div class="delta">Super Odds ativas</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Estrelabet é melhor</div>
+    <div class="val" id="kpi-best">—</div>
+    <div class="delta" id="kpi-winrate">—</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Estrelabet perde</div>
+    <div class="val" id="kpi-worst">—</div>
+    <div class="delta">mercados com odd menor</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Só Estrelabet tem</div>
+    <div class="val" id="kpi-exclusive">—</div>
+    <div class="delta">sem par nas rivais</div>
+  </div>
+</div>
+
+<div class="filters">
+  <label>
+    Esporte
+    <select id="f-sport" onchange="applyFilters()">
+      <option value="">Todos</option>
+      <option value="football">Futebol</option>
+      <option value="basketball">Basketball / NBA</option>
+    </select>
+  </label>
+  <label>
+    Buscar evento
+    <input id="f-search" type="text" placeholder="Ex: Flamengo, Lakers…" oninput="applyFilters()">
+  </label>
+  <label>
+    Mostrar
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="tb-all" onclick="setFilter('all')">Todos</button>
+      <button class="toggle-btn" id="tb-best" onclick="setFilter('best')">Estrelabet #1</button>
+      <button class="toggle-btn" id="tb-worst" onclick="setFilter('worst')">Rivais melhores</button>
+      <button class="toggle-btn" id="tb-excl" onclick="setFilter('excl')">Exclusivas</button>
+    </div>
+  </label>
+</div>
+
+<div class="table-wrap">
+  <table id="main-table">
+    <thead>
+      <tr>
+        <th>Evento</th>
+        <th>Data/Hora</th>
+        <th>Mercado</th>
+        <th>Seleção</th>
+        <th class="book">Estrelabet</th>
+        <th class="book">Superbet</th>
+        <th class="book">Betano</th>
+        <th class="book">Sportingbet</th>
+        <th class="book">Bet365</th>
+        <th>Melhor</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <tr><td colspan="10">
+        <div class="empty">
+          <div class="icon">⏳</div>
+          <h3>Carregando dados…</h3>
+          <p>Aguarde a primeira coleta ou clique em "Coletar agora"</p>
+        </div>
+      </td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer id="footer-info">Última atualização: —</footer>
+
+<script>
+const BOOKMAKERS = ["Estrelabet","Superbet","Betano","Sportingbet","Bet365"];
+let allRows = [];
+let activeFilter = "all";
+
+async function loadData() {
+  const dot = document.getElementById("status-dot");
+  dot.className = "loading";
+  document.getElementById("last-updated").textContent = "Atualizando…";
+
+  try {
+    const res = await fetch("/data?" + Date.now());
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    allRows = (data.rows || []).filter(r => isFuture(r.eventDatetime));
+    renderKPIs(allRows, data);
+    applyFilters();
+
+    const dt = data.updatedAt ? formatDT(data.updatedAt) : "—";
+    document.getElementById("last-updated").textContent = "Atualizado " + dt;
+    document.getElementById("footer-info").textContent = "Última coleta: " + dt + " | " + (data.totalRows||0) + " linhas comparativas";
+    dot.className = "";
+
+  } catch (e) {
+    dot.className = "error";
+    document.getElementById("last-updated").textContent = "Erro ao carregar";
+    console.error(e);
+    showEmpty("Erro ao carregar dados. O servidor está rodando?", "⚠️");
+  }
+}
+
+function isFuture(dtStr) {
+  if (!dtStr) return false;
+  return new Date(dtStr) > new Date();
+}
+
+function renderKPIs(rows, data) {
+  const best = rows.filter(r => r.estrelaIsBest).length;
+  const worst = rows.filter(r => !r.estrelaIsBest && r.estrelaOdd).length;
+  const excl = rows.filter(r => {
+    const others = BOOKMAKERS.filter(b => b !== "Estrelabet");
+    return !others.some(b => r.odds[b]);
+  }).length;
+
+  document.getElementById("kpi-total").textContent = rows.length;
+  document.getElementById("kpi-best").textContent = best;
+  document.getElementById("kpi-winrate").textContent =
+    rows.length ? (best/rows.length*100).toFixed(1) + "% win-rate" : "—";
+  document.getElementById("kpi-worst").textContent = worst;
+  document.getElementById("kpi-exclusive").textContent = excl;
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  ["all","best","worst","excl"].forEach(id => {
+    document.getElementById("tb-"+id).className =
+      "toggle-btn" + (id === f ? " active" : "");
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  const sport = document.getElementById("f-sport").value;
+  const search = document.getElementById("f-search").value.toLowerCase().trim();
+
+  let rows = allRows;
+
+  if (sport) rows = rows.filter(r => r.sport === sport);
+
+  if (search) {
+    rows = rows.filter(r =>
+      (r.eventRaw||"").toLowerCase().includes(search) ||
+      (r.league||"").toLowerCase().includes(search) ||
+      (r.selection||"").toLowerCase().includes(search)
+    );
+  }
+
+  if (activeFilter === "best")  rows = rows.filter(r => r.estrelaIsBest);
+  if (activeFilter === "worst") rows = rows.filter(r => !r.estrelaIsBest && r.estrelaOdd);
+  if (activeFilter === "excl")  rows = rows.filter(r => {
+    const others = BOOKMAKERS.filter(b => b !== "Estrelabet");
+    return !others.some(b => r.odds[b]);
+  });
+
+  renderTable(rows);
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById("table-body");
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="10">
+      <div class="empty">
+        <div class="icon">🔍</div>
+        <h3>Nenhum resultado</h3>
+        <p>Ajuste os filtros ou aguarde a próxima coleta</p>
+      </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(row => {
+    const bestOdd = row.bestOdd;
+    const books = BOOKMAKERS;
+
+    // Classe da linha
+    let rowClass = "";
+    if (row.estrelaIsBest) rowClass = "estrela-best";
+    else if (row.estrelaOdd && !row.estrelaIsBest) rowClass = "estrela-worst";
+
+    // Colunas de odds por casa
+    const oddCols = books.map(book => {
+      const entry = row.odds?.[book];
+      if (!entry) return `<td class="td-odd"><span class="no-odd">—</span></td>`;
+
+      const isBest = entry.odd === bestOdd;
+      const isEstrela = book === "Estrelabet";
+
+      let cls = "odd-badge";
+      if (isEstrela) cls += " estrela";
+      if (isBest) cls += " best";
+      else if (!isBest && entry.odd < bestOdd) cls += isEstrela ? "" : " worst";
+
+      const lift = entry.liftPct ? `<small>+${entry.liftPct}%</small>` : "";
+      return `<td class="td-odd"><span class="${cls}">${entry.odd.toFixed(2)}${lift}</span></td>`;
+    }).join("");
+
+    // Coluna "Melhor"
+    const winners = row.bestBookmakers || [];
+    const winnerLabel = winners.includes("Estrelabet")
+      ? `<span class="winner-tag">★ Estrelabet</span>`
+      : `<span class="loser-tag">${winners.join(", ")}</span>`;
+
+    // Data
+    const dtStr = formatDTShort(row.eventDatetime);
+
+    return `<tr class="${rowClass}">
+      <td class="td-event">
+        <div class="event-name" title="${row.eventRaw}">${row.eventRaw}</div>
+        <div class="event-meta">${row.league||""}</div>
+      </td>
+      <td class="td-datetime">${dtStr}</td>
+      <td class="td-market">${row.market||"—"}</td>
+      <td class="td-sel" title="${row.selection}">${row.selection||"—"}</td>
+      ${oddCols}
+      <td>${winnerLabel}</td>
+    </tr>`;
+  }).join("");
+}
+
+function showEmpty(msg, icon="📭") {
+  document.getElementById("table-body").innerHTML =
+    `<tr><td colspan="10"><div class="empty"><div class="icon">${icon}</div><h3>${msg}</h3></div></td></tr>`;
+}
+
+async function triggerScrape() {
+  const btn = document.querySelector(".btn-trigger");
+  btn.disabled = true;
+  btn.textContent = "⏳ Coletando…";
+  document.getElementById("status-dot").className = "loading";
+  try {
+    const res = await fetch("/trigger", { method: "POST" });
+    const data = await res.json();
+    if (data.status === "already_running") {
+      btn.textContent = "Já rodando…";
+    } else {
+      btn.textContent = "✓ Iniciado";
+      setTimeout(() => loadData(), 5000);
+      setTimeout(() => loadData(), 15000);
+      setTimeout(() => loadData(), 40000);
+    }
+  } catch(e) {
+    btn.textContent = "Erro";
+  }
+  setTimeout(() => { btn.disabled = false; btn.textContent = "▶ Coletar agora"; }, 60000);
+}
+
+function formatDT(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" }) + " " +
+         d.toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
+}
+
+function formatDTShort(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const today = new Date();
+  const tomorrow = new Date(); tomorrow.setDate(today.getDate()+1);
+  const isToday = d.toDateString() === today.toDateString();
+  const isTomorrow = d.toDateString() === tomorrow.toDateString();
+
+  const timeStr = d.toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" });
+  if (isToday) return `<strong>Hoje</strong> ${timeStr}`;
+  if (isTomorrow) return `Amanhã ${timeStr}`;
+  return d.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" }) + " " + timeStr;
+}
+
+// Auto-refresh a cada 10 minutos
+setInterval(loadData, 10 * 60 * 1000);
+
+// Carga inicial
+loadData();
+</script>
+</body>
+</html>

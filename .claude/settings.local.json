@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 180 node main.js)",
+      "Bash(node main.js)",
+      "Bash(node debug_recon.js)",
+      "Bash(npm install *)",
+      "Read(//tmp/**)",
+      "Bash(node -e ' *)",
+      "Bash(pkill -f \"node -e\")",
+      "Bash(pkill -f \"Chrome for Testing\")",
+      "Bash(pkill -f \"node main\")",
+      "Bash(tee /tmp/sb_test.log)",
+      "Bash(tee /tmp/main_run2.log)",
+      "Bash(SERVER_PORT=8080 node server.js)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl -s http://localhost:8080/health)",
+      "Bash(curl -s http://localhost:8080/data)",
+      "Bash(kill 43951)",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(xargs -r kill -9)",
+      "Bash(SERVER_PORT=8081 node server.js)",
+      "Bash(curl -s http://localhost:8081/health)",
+      "Bash(curl -s -o /tmp/dash.html http://localhost:8081/)",
+      "Bash(kill 43980)",
+      "Bash(pkill -f \"node server\")",
+      "Bash(kill 44308)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(docker --version)",
+      "Bash(gh auth *)",
+      "Bash(git --version)",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)"
+    ]
+  }
+}

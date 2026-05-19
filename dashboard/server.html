@@ -257,6 +257,30 @@ header {
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
 }
 
+.market-tag {
+  display: inline-block; margin-left: 4px;
+  padding: 1px 5px; border-radius: 3px;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .03em;
+  vertical-align: middle;
+}
+.market-tag--so  { background: var(--gold-soft); color: #92400e; }
+.market-tag--std { background: var(--bg);        color: var(--muted); border: 1px solid var(--border); }
+
+.card-pick {
+  font-size: 13px; color: var(--text);
+  background: var(--bg); border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.card-pick .pick-label {
+  font-size: 11px; font-weight: 600; color: var(--text-soft);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.card-pick strong {
+  font-size: 14px; font-weight: 700; color: var(--text);
+}
+
 /* Odds comparison block */
 .odds-row {
   display: grid;
@@ -417,15 +441,23 @@ footer {
 <div class="filters">
   <label class="filter-input">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
-    <select id="f-sport" onchange="render()">
+    <select id="f-sport" onchange="onFilterChange()">
       <option value="">Todos esportes</option>
       <option value="football">Futebol</option>
       <option value="basketball">Basquete / NBA</option>
     </select>
   </label>
   <label class="filter-input">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6M3 12h12M3 17h18"/></svg>
+    <select id="f-rival" onchange="onFilterChange()">
+      <option value="">Comparar com todas as casas</option>
+      <option value="Sportingbet">Comparar só com Sportingbet</option>
+      <option value="Betano">Comparar só com Betano</option>
+    </select>
+  </label>
+  <label class="filter-input">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-    <input id="f-search" type="text" placeholder="Buscar evento, time ou liga…" oninput="render()">
+    <input id="f-search" type="text" placeholder="Buscar evento, time ou liga…" oninput="onFilterChange()">
   </label>
 </div>
 
@@ -449,6 +481,9 @@ const RIVAL_BOOKMAKERS = BOOKMAKERS.filter(b => b !== "Estrelabet");
 //   - qualquer outro → assume mesmo host (Express local ou Fly servindo o HTML)
 const FLY_BASE = 'https://odds-benchmark-estrela.fly.dev';
 const API_BASE = /github\.io$/.test(location.host) ? FLY_BASE : '';
+
+// Filtro ativo de rival — recalcula bestBookmakers se != null
+let RIVAL_FILTER = '';
 
 // === Sessão local (anônima, sem login) ===
 // Cada browser tem session-id próprio + filtros persistentes no localStorage.
@@ -480,9 +515,11 @@ const STATE = {
 async function loadData() {
   setStatus('loading', 'Carregando…');
   try {
+    // [STANDALONE:DATA_START]
     const res = await fetch(API_BASE + "/data?" + Date.now());
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
+    // [STANDALONE:DATA_END]
 
     STATE.rows = (data.rows || []).filter(r => isFuture(r.eventDatetime));
     bucketize();
@@ -515,10 +552,13 @@ function isFuture(dtStr) {
 
 function classify(row) {
   const hasEstrela = !!row.estrelaOdd;
-  const rivalsWithOdd = RIVAL_BOOKMAKERS.filter(b => row.odds[b]);
+  // Se filtro de rival ativo, considera só essa casa pra classificar
+  const rivals = RIVAL_FILTER ? [RIVAL_FILTER] : RIVAL_BOOKMAKERS;
+  const rivalsWithOdd = rivals.filter(b => row.odds[b]);
   if (!hasEstrela)              return 'gap';        // só rivais
-  if (rivalsWithOdd.length === 0) return 'excl';     // só Estrela
-  if (row.estrelaIsBest)         return 'win';
+  if (rivalsWithOdd.length === 0) return 'excl';     // só Estrela (na comparação atual)
+  const rivalMax = Math.max(...rivalsWithOdd.map(b => row.odds[b].odd));
+  if (row.estrelaOdd >= rivalMax) return 'win';
   return 'loss';
 }
 
@@ -537,7 +577,9 @@ function bucketize() {
 
 function gapPct(row, view) {
   const estrela = row.estrelaOdd || 0;
-  const rivals = RIVAL_BOOKMAKERS.map(b => row.odds[b]?.odd).filter(Boolean);
+  // Aplica filtro de rival se ativo
+  const pool = RIVAL_FILTER ? [RIVAL_FILTER] : RIVAL_BOOKMAKERS;
+  const rivals = pool.map(b => row.odds[b]?.odd).filter(Boolean);
   if (!rivals.length || !estrela) return 0;
   const bestRival = Math.max(...rivals);
   if (view === 'win')  return ((estrela - bestRival) / bestRival) * 100;
@@ -573,6 +615,14 @@ function setView(view) {
   for (const tab of document.querySelectorAll('.tab')) {
     tab.classList.toggle('active', tab.dataset.view === view);
   }
+  render();
+}
+
+function onFilterChange() {
+  RIVAL_FILTER = document.getElementById('f-rival').value || '';
+  SESSION.setPref('rival', RIVAL_FILTER);
+  bucketize();
+  renderKPIs();
   render();
 }
 
@@ -625,7 +675,10 @@ function renderCard(row) {
     <div>
       <div class="card-event">${escapeHtml(row.eventRaw || '—')}</div>
     </div>
-    <div class="card-market">${escapeHtml(row.market || '—')}</div>
+    <div class="card-pick">
+      <span class="pick-label">Aposta:</span>
+      <strong>${pickLabel(row)}</strong>
+    </div>
   `;
   let body = '';
   if (cat === 'win' || cat === 'loss')  body = renderCompare(row, cat);
@@ -633,6 +686,12 @@ function renderCard(row) {
   else                                  body = renderGap(row);
 
   return `<article class="card ${cat}">${meta}${head}${body}</article>`;
+}
+
+function pickLabel(row) {
+  // Texto claro do desfecho. ex: "Fluminense vence", "Empate", "Bolívar vence"
+  if (row.outcome === 'draw') return 'Empate';
+  return `${escapeHtml(row.selection)} vence`;
 }
 
 function cardBadge(cat) {
@@ -647,7 +706,9 @@ function cardBadge(cat) {
 
 function renderCompare(row, cat) {
   const estrela = row.odds['Estrelabet'];
-  const rivals = RIVAL_BOOKMAKERS
+  // Respeita o filtro de rival ativo
+  const pool = RIVAL_FILTER ? [RIVAL_FILTER] : RIVAL_BOOKMAKERS;
+  const rivals = pool
     .map(b => ({ book: b, ...row.odds[b] }))
     .filter(x => x.odd);
   rivals.sort((a, b) => b.odd - a.odd);
@@ -686,7 +747,8 @@ function renderExclusive(row) {
 }
 
 function renderGap(row) {
-  const rivals = RIVAL_BOOKMAKERS
+  const pool = RIVAL_FILTER ? [RIVAL_FILTER] : RIVAL_BOOKMAKERS;
+  const rivals = pool
     .map(b => ({ book: b, ...row.odds[b] }))
     .filter(x => x.odd);
   rivals.sort((a, b) => b.odd - a.odd);
@@ -705,9 +767,13 @@ function oddBox(book, entry, isPrimary, status) {
   }
   const lift = entry.liftPct ? `<div class="lift">+${entry.liftPct}% vs odd base</div>` : '';
   const cls = isPrimary ? `odd-box primary ${status || ''}` : 'odd-box';
+  // Estrelabet sempre é Super Odd (1x2 turbinado). Rivais sempre 1x2 padrão.
+  const tag = book === 'Estrelabet'
+    ? '<span class="market-tag market-tag--so">SO</span>'
+    : '<span class="market-tag market-tag--std">Padrão</span>';
   return `
     <div class="${cls}">
-      <div class="book">${book}</div>
+      <div class="book">${book} ${tag}</div>
       <div class="value">${entry.odd.toFixed(2)}</div>
       ${lift}
     </div>
@@ -810,6 +876,7 @@ function initSession() {
   if (p.view) STATE.view = p.view;
   if (p.sport) document.getElementById('f-sport').value = p.sport;
   if (p.search) document.getElementById('f-search').value = p.search;
+  if (p.rival) { document.getElementById('f-rival').value = p.rival; RIVAL_FILTER = p.rival; }
   // Atualiza visualmente a aba ativa
   for (const tab of document.querySelectorAll('.tab')) {
     tab.classList.toggle('active', tab.dataset.view === STATE.view);

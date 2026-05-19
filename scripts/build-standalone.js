@@ -29,10 +29,9 @@ html = html.replace(
   ''
 );
 
-// 2. Substitui o bloco fetch("/data") por leitura direta do __DATA__ embedado.
-//    O resto do loadData (renderKPIs, applyFilters, last-updated) continua igual.
+// 2. Substitui o bloco entre os marker comments por leitura direta do __DATA__ embedado.
 html = html.replace(
-  /const res = await fetch\("\/data\?" \+ Date\.now\(\)\);\s*\n\s*if \(!res\.ok\) throw new Error\("HTTP " \+ res\.status\);\s*\n\s*const data = await res\.json\(\);/,
+  /\/\/ \[STANDALONE:DATA_START\][\s\S]*?\/\/ \[STANDALONE:DATA_END\]/,
   'const data = window.__DATA__;'
 );
 

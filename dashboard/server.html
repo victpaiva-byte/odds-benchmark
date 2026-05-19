@@ -331,6 +331,20 @@ header {
 .gap-indicator.note .label { color: var(--text-soft); font-weight: 600; font-size: 10px; }
 
 /* "No estrela" cards have variable rivals — vertical stack */
+.odds-others {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: -4px;
+}
+.odd-mini {
+  flex: 1 1 auto; min-width: 80px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 5px 9px;
+  font-size: 11px;
+}
+.odd-mini .book { font-weight: 600; color: var(--text-soft); }
+.odd-mini .val  { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+
 .rival-list { display: flex; flex-direction: column; gap: 6px; }
 .rival-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -468,7 +482,7 @@ footer {
 
 <footer>
   <span id="footer-info">—</span>
-  <span>Compara o mercado 1x2 turbinado da Estrelabet (Super Odd) com 1x2 das rivais. Bet365 e Superbet fora deste benchmark (sem 1x2 padronizado disponível).</span>
+  <span>Compara o mercado 1x2 turbinado da Estrelabet (Super Odd) com 1x2 padrão das rivais. Bet365 fora deste benchmark (Cloudflare bloqueia).</span>
 </footer>
 
 <script>
@@ -707,7 +721,6 @@ function cardBadge(cat) {
 
 function renderCompare(row, cat) {
   const estrela = row.odds['Estrelabet'];
-  // Respeita o filtro de rival ativo
   const pool = RIVAL_FILTER ? [RIVAL_FILTER] : RIVAL_BOOKMAKERS;
   const rivals = pool
     .map(b => ({ book: b, ...row.odds[b] }))
@@ -716,7 +729,6 @@ function renderCompare(row, cat) {
   const bestRival = rivals[0];
 
   const gap = gapPct(row, cat);
-  // Gap > 35% costuma indicar matcher casando combos com mercados simples — não comparável.
   const trustworthy = Math.abs(gap) <= 35;
   const arrow = cat === 'win' ? '▲' : '▼';
   const gapText = trustworthy
@@ -724,6 +736,19 @@ function renderCompare(row, cat) {
         ? `+${gap.toFixed(1)}% vs<br>${bestRival.book}`
         : `−${gap.toFixed(1)}% vs<br>${bestRival.book}`)
     : `mercados<br>diferentes`;
+
+  // Outros rivais (além do melhor) ficam em linha compacta
+  const others = rivals.slice(1);
+  const othersHTML = others.length ? `
+    <div class="odds-others">
+      ${others.map(r => `
+        <div class="odd-mini">
+          <span class="book">${r.book}</span>
+          <span class="val">${r.odd.toFixed(2)}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
 
   return `
     <div class="odds-row">
@@ -734,6 +759,7 @@ function renderCompare(row, cat) {
       </div>
       ${oddBox(bestRival.book, bestRival, false)}
     </div>
+    ${othersHTML}
   `;
 }
 

@@ -1,20 +1,13 @@
 {
-  "updatedAt": "2026-05-19T19:28:29.834Z",
+  "updatedAt": "2026-05-19T19:59:43.157Z",
   "totalRows": 75,
-  "rawCount": 1669,
+  "rawCount": 1969,
   "summary": {
     "totalMarkets": 75,
-    "estrelaIsBestCount": 38,
-    "estrelaNotBestCount": 37,
-    "winRate": 50.7,
+    "estrelaIsBestCount": 26,
+    "estrelaNotBestCount": 49,
+    "winRate": 34.7,
     "bestMarkets": [
-      {
-        "event": "Coquimbo Unido x Deportes Tolima",
-        "outcome": "draw",
-        "selection": "Empate",
-        "estrelaOdd": 3.16,
-        "bestOdd": 3.16
-      },
       {
         "event": "Coquimbo Unido x Deportes Tolima",
         "outcome": "away",
@@ -31,13 +24,6 @@
       },
       {
         "event": "Rosário Central x UCV FC",
-        "outcome": "home",
-        "selection": "Rosário Central",
-        "estrelaOdd": 2.56,
-        "bestOdd": 2.56
-      },
-      {
-        "event": "Rosário Central x UCV FC",
         "outcome": "draw",
         "selection": "Empate",
         "estrelaOdd": 6.9,
@@ -51,64 +37,50 @@
         "bestOdd": 3.01
       },
       {
-        "event": "Montevideo City Torque x Deportivo Riestra",
-        "outcome": "away",
-        "selection": "Deportivo Riestra",
-        "estrelaOdd": 4.15,
-        "bestOdd": 4.15
-      },
-      {
         "event": "Always Ready x Mirassol ",
-        "outcome": "home",
-        "selection": "Always Ready",
-        "estrelaOdd": 6.1,
-        "bestOdd": 6.1
+        "outcome": "away",
+        "selection": "Mirassol",
+        "estrelaOdd": 1.61,
+        "bestOdd": 1.61
       },
       {
-        "event": "Independiente Santa Fé x Platense",
-        "outcome": "home",
-        "selection": "Independiente Santa Fé",
-        "estrelaOdd": 2.22,
-        "bestOdd": 2.22
+        "event": "Boca Juniors x Cruzeiro",
+        "outcome": "away",
+        "selection": "Cruzeiro",
+        "estrelaOdd": 4.55,
+        "bestOdd": 4.55
       },
       {
-        "event": "Independiente Santa Fé x Platense",
+        "event": "Independiente del Valle x Libertad",
         "outcome": "draw",
         "selection": "Empate",
-        "estrelaOdd": 3.07,
-        "bestOdd": 3.07
+        "estrelaOdd": 5.5,
+        "bestOdd": 5.5
+      },
+      {
+        "event": "Independiente del Valle x Libertad",
+        "outcome": "away",
+        "selection": "Libertad",
+        "estrelaOdd": 10,
+        "bestOdd": 10
+      },
+      {
+        "event": "Deportivo Cuenca x CD Recoleta",
+        "outcome": "draw",
+        "selection": "Empate",
+        "estrelaOdd": 4,
+        "bestOdd": 4
+      },
+      {
+        "event": "SCU Torreense x Casa Pia",
+        "outcome": "home",
+        "selection": "SCU Torreense",
+        "estrelaOdd": 2.48,
+        "bestOdd": 2.48
       }
     ]
   },
   "rows": [
-    {
-      "eventRaw": "Coquimbo Unido x Deportes Tolima",
-      "eventNormalized": "coquimbo unido x deportes tolima",
-      "league": "Copa Libertadores",
-      "sport": "football",
-      "eventDatetime": "2026-05-19T22:00:00.000Z",
-      "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.16,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.05,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.16,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 3.16
-    },
     {
       "eventRaw": "Coquimbo Unido x Deportes Tolima",
       "eventNormalized": "coquimbo unido x deportes tolima",
@@ -121,6 +93,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 3.35,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.1,
           "oddBase": null,
           "liftPct": null
         },
@@ -157,13 +134,18 @@
           "oddBase": null,
           "liftPct": null
         },
-        "Betano": {
+        "Sportingbet": {
           "odd": 1.21,
           "oddBase": null,
           "liftPct": null
         },
+        "Betano": {
+          "odd": 1.2,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Superbet": {
-          "odd": 1.19,
+          "odd": 1.2,
           "oddBase": null,
           "liftPct": null
         }
@@ -171,43 +153,10 @@
       "bestOdd": 1.21,
       "bestBookmakers": [
         "Estrelabet",
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": true,
       "estrelaOdd": 1.21
-    },
-    {
-      "eventRaw": "Rosário Central x UCV FC",
-      "eventNormalized": "rosario central x ucv fc",
-      "league": "Copa Libertadores",
-      "sport": "football",
-      "eventDatetime": "2026-05-19T22:00:00.000Z",
-      "market": "1x2",
-      "outcome": "home",
-      "selection": "Rosário Central",
-      "odds": {
-        "Estrelabet": {
-          "odd": 2.56,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 2.55,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Superbet": {
-          "odd": 2.55,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 2.56,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 2.56
     },
     {
       "eventRaw": "Rosário Central x UCV FC",
@@ -221,6 +170,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 6.9,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 6.75,
           "oddBase": null,
           "liftPct": null
         },
@@ -252,6 +206,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 2.9,
           "oddBase": null,
@@ -266,132 +225,42 @@
       "estrelaOdd": 3.01
     },
     {
-      "eventRaw": "Montevideo City Torque x Deportivo Riestra",
-      "eventNormalized": "montevideo city torque x deportivo riestra",
-      "league": "Copa Sul-Americana",
-      "sport": "football",
-      "eventDatetime": "2026-05-19T22:00:00.000Z",
-      "market": "1x2",
-      "outcome": "away",
-      "selection": "Deportivo Riestra",
-      "odds": {
-        "Estrelabet": {
-          "odd": 4.15,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 4,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Superbet": {
-          "odd": 4.15,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 4.15,
-      "bestBookmakers": [
-        "Estrelabet",
-        "Superbet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 4.15
-    },
-    {
       "eventRaw": "Always Ready x Mirassol ",
       "eventNormalized": "always ready x mirassol",
       "league": "Copa Libertadores",
       "sport": "football",
       "eventDatetime": "2026-05-20T00:00:00.000Z",
       "market": "1x2",
-      "outcome": "home",
-      "selection": "Always Ready",
+      "outcome": "away",
+      "selection": "Mirassol",
       "odds": {
         "Estrelabet": {
-          "odd": 6.1,
+          "odd": 1.61,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 1.55,
           "oddBase": null,
           "liftPct": null
         },
         "Betano": {
-          "odd": 5.9,
+          "odd": 1.6,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 5.5,
+          "odd": 1.59,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 6.1,
+      "bestOdd": 1.61,
       "bestBookmakers": [
         "Estrelabet"
       ],
       "estrelaIsBest": true,
-      "estrelaOdd": 6.1
-    },
-    {
-      "eventRaw": "Independiente Santa Fé x Platense",
-      "eventNormalized": "independiente santa fe x platense",
-      "league": "Copa Libertadores",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T00:00:00.000Z",
-      "market": "1x2",
-      "outcome": "home",
-      "selection": "Independiente Santa Fé",
-      "odds": {
-        "Estrelabet": {
-          "odd": 2.22,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 2.2,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Superbet": {
-          "odd": 2.17,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 2.22,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 2.22
-    },
-    {
-      "eventRaw": "Independiente Santa Fé x Platense",
-      "eventNormalized": "independiente santa fe x platense",
-      "league": "Copa Libertadores",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T00:00:00.000Z",
-      "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.07,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.05,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.07,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 3.07
+      "estrelaOdd": 1.61
     },
     {
       "eventRaw": "Boca Juniors x Cruzeiro",
@@ -408,13 +277,18 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 4.33,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 4.55,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 4.5,
+          "odd": 4.4,
           "oddBase": null,
           "liftPct": null
         }
@@ -426,40 +300,6 @@
       ],
       "estrelaIsBest": true,
       "estrelaOdd": 4.55
-    },
-    {
-      "eventRaw": "São Paulo x Millonarios",
-      "eventNormalized": "sao paulo x millonarios",
-      "league": "Copa Sul-Americana",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T00:30:00.000Z",
-      "market": "1x2",
-      "outcome": "away",
-      "selection": "Millonarios",
-      "odds": {
-        "Estrelabet": {
-          "odd": 5.65,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 5.6,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Superbet": {
-          "odd": 5.65,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 5.65,
-      "bestBookmakers": [
-        "Estrelabet",
-        "Superbet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 5.65
     },
     {
       "eventRaw": "Independiente del Valle x Libertad",
@@ -476,6 +316,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 5.5,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 5.3,
           "oddBase": null,
@@ -484,7 +329,8 @@
       },
       "bestOdd": 5.5,
       "bestBookmakers": [
-        "Estrelabet"
+        "Estrelabet",
+        "Sportingbet"
       ],
       "estrelaIsBest": true,
       "estrelaOdd": 5.5
@@ -501,6 +347,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 10,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 8.25,
           "oddBase": null,
           "liftPct": null
         },
@@ -523,34 +374,6 @@
       "estrelaOdd": 10
     },
     {
-      "eventRaw": "América de Cali x CA Tigre",
-      "eventNormalized": "america de cali x ca tigre",
-      "league": "Copa Sul-Americana",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T02:00:00.000Z",
-      "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.19,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.05,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.19,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 3.19
-    },
-    {
       "eventRaw": "Deportivo Cuenca x CD Recoleta",
       "eventNormalized": "deportivo cuenca x cd recoleta",
       "league": "Copa Sul-Americana",
@@ -565,6 +388,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 4,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.85,
           "oddBase": null,
@@ -573,44 +401,11 @@
       },
       "bestOdd": 4,
       "bestBookmakers": [
-        "Estrelabet"
+        "Estrelabet",
+        "Sportingbet"
       ],
       "estrelaIsBest": true,
       "estrelaOdd": 4
-    },
-    {
-      "eventRaw": "Deportivo Cuenca x CD Recoleta",
-      "eventNormalized": "deportivo cuenca x cd recoleta",
-      "league": "Copa Sul-Americana",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T02:00:00.000Z",
-      "market": "1x2",
-      "outcome": "away",
-      "selection": "CD Recoleta",
-      "odds": {
-        "Estrelabet": {
-          "odd": 6.4,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 6.4,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Superbet": {
-          "odd": 6.2,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 6.4,
-      "bestBookmakers": [
-        "Estrelabet",
-        "Betano"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 6.4
     },
     {
       "eventRaw": "SCU Torreense x Casa Pia",
@@ -707,52 +502,28 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.66,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.7,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 1.71,
+          "odd": 1.7,
           "oddBase": null,
           "liftPct": null
         }
       },
       "bestOdd": 1.71,
       "bestBookmakers": [
-        "Estrelabet",
-        "Superbet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 1.71
-    },
-    {
-      "eventRaw": "Nacional-URU x Universitário",
-      "eventNormalized": "nacional uru x universitario",
-      "league": "Copa Libertadores",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T22:00:00.000Z",
-      "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.54,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.5,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.54,
-      "bestBookmakers": [
         "Estrelabet"
       ],
       "estrelaIsBest": true,
-      "estrelaOdd": 3.54
+      "estrelaOdd": 1.71
     },
     {
       "eventRaw": "Nacional-URU x Universitário",
@@ -766,6 +537,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 4.65,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 4.2,
           "oddBase": null,
           "liftPct": null
         },
@@ -803,6 +579,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 4,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 4.1,
           "oddBase": null,
@@ -830,39 +611,16 @@
       "sport": "football",
       "eventDatetime": "2026-05-20T22:00:00.000Z",
       "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.38,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.35,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.38,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 3.38
-    },
-    {
-      "eventRaw": "Boston River x CD O´Higgins",
-      "eventNormalized": "boston river x cd o higgins",
-      "league": "Copa Sul-Americana",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T22:00:00.000Z",
-      "market": "1x2",
       "outcome": "away",
       "selection": "CD O´Higgins",
       "odds": {
         "Estrelabet": {
           "odd": 2.02,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 1.98,
           "oddBase": null,
           "liftPct": null
         },
@@ -899,6 +657,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.4,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.35,
           "oddBase": null,
@@ -927,6 +690,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.7,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 4.05,
           "oddBase": null,
@@ -952,40 +720,16 @@
       "sport": "football",
       "eventDatetime": "2026-05-20T22:00:00.000Z",
       "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.6,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.6,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.6,
-      "bestBookmakers": [
-        "Estrelabet",
-        "Betano"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 3.6
-    },
-    {
-      "eventRaw": "Santos x San Lorenzo",
-      "eventNormalized": "santos x san lorenzo",
-      "league": "Copa Sul-Americana",
-      "sport": "football",
-      "eventDatetime": "2026-05-20T22:00:00.000Z",
-      "market": "1x2",
       "outcome": "away",
       "selection": "San Lorenzo",
       "odds": {
         "Estrelabet": {
           "odd": 5.2,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 4.5,
           "oddBase": null,
           "liftPct": null
         },
@@ -1022,6 +766,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 4.75,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 4.85,
           "oddBase": null,
@@ -1050,6 +799,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.5,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.45,
           "oddBase": null,
@@ -1075,6 +829,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 4.55,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 4.2,
           "oddBase": null,
           "liftPct": null
         },
@@ -1111,6 +870,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.35,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.35,
           "oddBase": null,
@@ -1125,6 +889,7 @@
       "bestOdd": 1.35,
       "bestBookmakers": [
         "Estrelabet",
+        "Sportingbet",
         "Betano"
       ],
       "estrelaIsBest": true,
@@ -1142,6 +907,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 2.12,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 2.05,
           "oddBase": null,
           "liftPct": null
         },
@@ -1171,39 +941,16 @@
       "sport": "football",
       "eventDatetime": "2026-05-21T02:00:00.000Z",
       "market": "1x2",
-      "outcome": "draw",
-      "selection": "Empate",
-      "odds": {
-        "Estrelabet": {
-          "odd": 3.16,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Betano": {
-          "odd": 3.1,
-          "oddBase": null,
-          "liftPct": null
-        }
-      },
-      "bestOdd": 3.16,
-      "bestBookmakers": [
-        "Estrelabet"
-      ],
-      "estrelaIsBest": true,
-      "estrelaOdd": 3.16
-    },
-    {
-      "eventRaw": "Cusco FC x Independiente Medellin",
-      "eventNormalized": "cusco fc x independiente medellin",
-      "league": "Copa Libertadores",
-      "sport": "football",
-      "eventDatetime": "2026-05-21T02:00:00.000Z",
-      "market": "1x2",
       "outcome": "away",
       "selection": "Independiente Medellin",
       "odds": {
         "Estrelabet": {
           "odd": 3.31,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 2.95,
           "oddBase": null,
           "liftPct": null
         },
@@ -1232,32 +979,38 @@
       "sport": "football",
       "eventDatetime": "2026-05-21T02:00:00.000Z",
       "market": "1x2",
-      "outcome": "away",
-      "selection": "Sporting Cristal",
+      "outcome": "home",
+      "selection": "Junior Barranquilla",
       "odds": {
         "Estrelabet": {
-          "odd": 4.9,
+          "odd": 1.75,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 1.72,
           "oddBase": null,
           "liftPct": null
         },
         "Betano": {
-          "odd": 4.9,
+          "odd": 1.75,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 4.8,
+          "odd": 1.75,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 4.9,
+      "bestOdd": 1.75,
       "bestBookmakers": [
         "Estrelabet",
-        "Betano"
+        "Betano",
+        "Superbet"
       ],
       "estrelaIsBest": true,
-      "estrelaOdd": 4.9
+      "estrelaOdd": 1.75
     },
     {
       "eventRaw": "Coquimbo Unido x Deportes Tolima",
@@ -1271,6 +1024,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 2.38,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 2.4,
           "oddBase": null,
           "liftPct": null
         },
@@ -1293,6 +1051,39 @@
       "estrelaOdd": 2.38
     },
     {
+      "eventRaw": "Coquimbo Unido x Deportes Tolima",
+      "eventNormalized": "coquimbo unido x deportes tolima",
+      "league": "Copa Libertadores",
+      "sport": "football",
+      "eventDatetime": "2026-05-19T22:00:00.000Z",
+      "market": "1x2",
+      "outcome": "draw",
+      "selection": "Empate",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.16,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.25,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 3.05,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 3.25,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.16
+    },
+    {
       "eventRaw": "Fluminense x Bolívar",
       "eventNormalized": "fluminense x bolivar",
       "league": "Copa Libertadores",
@@ -1307,15 +1098,20 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 7.25,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
-          "odd": 7.5,
+          "odd": 7.2,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 7.5,
+      "bestOdd": 7.25,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 6.9
@@ -1335,18 +1131,23 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 14,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
-          "odd": 16,
+          "odd": 18.5,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 15,
+          "odd": 14,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 16,
+      "bestOdd": 18.5,
       "bestBookmakers": [
         "Betano"
       ],
@@ -1360,11 +1161,54 @@
       "sport": "football",
       "eventDatetime": "2026-05-19T22:00:00.000Z",
       "market": "1x2",
+      "outcome": "home",
+      "selection": "Rosário Central",
+      "odds": {
+        "Estrelabet": {
+          "odd": 2.56,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 2.65,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 2.55,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Superbet": {
+          "odd": 2.55,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 2.65,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 2.56
+    },
+    {
+      "eventRaw": "Rosário Central x UCV FC",
+      "eventNormalized": "rosario central x ucv fc",
+      "league": "Copa Libertadores",
+      "sport": "football",
+      "eventDatetime": "2026-05-19T22:00:00.000Z",
+      "market": "1x2",
       "outcome": "away",
       "selection": "UCV FC",
       "odds": {
         "Estrelabet": {
           "odd": 16,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 13.5,
           "oddBase": null,
           "liftPct": null
         },
@@ -1397,7 +1241,12 @@
       "selection": "Montevideo City Torque",
       "odds": {
         "Estrelabet": {
-          "odd": 2.12,
+          "odd": 2.19,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 2.15,
           "oddBase": null,
           "liftPct": null
         },
@@ -1417,7 +1266,83 @@
         "Superbet"
       ],
       "estrelaIsBest": false,
-      "estrelaOdd": 2.12
+      "estrelaOdd": 2.19
+    },
+    {
+      "eventRaw": "Montevideo City Torque x Deportivo Riestra",
+      "eventNormalized": "montevideo city torque x deportivo riestra",
+      "league": "Copa Sul-Americana",
+      "sport": "football",
+      "eventDatetime": "2026-05-19T22:00:00.000Z",
+      "market": "1x2",
+      "outcome": "away",
+      "selection": "Deportivo Riestra",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.9,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.75,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 4,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Superbet": {
+          "odd": 3.9,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 4,
+      "bestBookmakers": [
+        "Betano"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.9
+    },
+    {
+      "eventRaw": "Always Ready x Mirassol ",
+      "eventNormalized": "always ready x mirassol",
+      "league": "Copa Libertadores",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T00:00:00.000Z",
+      "market": "1x2",
+      "outcome": "home",
+      "selection": "Always Ready",
+      "odds": {
+        "Estrelabet": {
+          "odd": 6.1,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 6,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 6.3,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Superbet": {
+          "odd": 5.5,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 6.3,
+      "bestBookmakers": [
+        "Betano"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 6.1
     },
     {
       "eventRaw": "Always Ready x Mirassol ",
@@ -1430,6 +1355,11 @@
       "selection": "Empate",
       "odds": {
         "Estrelabet": {
+          "odd": 4,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
           "odd": 4,
           "oddBase": null,
           "liftPct": null
@@ -1448,37 +1378,75 @@
       "estrelaOdd": 4
     },
     {
-      "eventRaw": "Always Ready x Mirassol ",
-      "eventNormalized": "always ready x mirassol",
+      "eventRaw": "Independiente Santa Fé x Platense",
+      "eventNormalized": "independiente santa fe x platense",
       "league": "Copa Libertadores",
       "sport": "football",
       "eventDatetime": "2026-05-20T00:00:00.000Z",
       "market": "1x2",
-      "outcome": "away",
-      "selection": "Mirassol",
+      "outcome": "home",
+      "selection": "Independiente Santa Fé",
       "odds": {
         "Estrelabet": {
-          "odd": 1.61,
+          "odd": 2.22,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 2.25,
           "oddBase": null,
           "liftPct": null
         },
         "Betano": {
-          "odd": 1.62,
+          "odd": 2.2,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 1.59,
+          "odd": 2.17,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 1.62,
+      "bestOdd": 2.25,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
-      "estrelaOdd": 1.61
+      "estrelaOdd": 2.22
+    },
+    {
+      "eventRaw": "Independiente Santa Fé x Platense",
+      "eventNormalized": "independiente santa fe x platense",
+      "league": "Copa Libertadores",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T00:00:00.000Z",
+      "market": "1x2",
+      "outcome": "draw",
+      "selection": "Empate",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.07,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.2,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 3.05,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 3.2,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.07
     },
     {
       "eventRaw": "Independiente Santa Fé x Platense",
@@ -1492,6 +1460,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 3.79,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.7,
           "oddBase": null,
           "liftPct": null
         },
@@ -1528,6 +1501,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 2.05,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 2.05,
           "oddBase": null,
@@ -1541,6 +1519,7 @@
       },
       "bestOdd": 2.05,
       "bestBookmakers": [
+        "Sportingbet",
         "Betano",
         "Superbet"
       ],
@@ -1559,6 +1538,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 3.08,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.1,
           "oddBase": null,
           "liftPct": null
         },
@@ -1590,13 +1574,18 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.7,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.72,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 1.7,
+          "odd": 1.66,
           "oddBase": null,
           "liftPct": null
         }
@@ -1623,6 +1612,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.75,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.8,
           "oddBase": null,
@@ -1637,6 +1631,44 @@
       "estrelaOdd": 3.75
     },
     {
+      "eventRaw": "São Paulo x Millonarios",
+      "eventNormalized": "sao paulo x millonarios",
+      "league": "Copa Sul-Americana",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T00:30:00.000Z",
+      "market": "1x2",
+      "outcome": "away",
+      "selection": "Millonarios",
+      "odds": {
+        "Estrelabet": {
+          "odd": 5.65,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 5.5,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 5.6,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Superbet": {
+          "odd": 5.85,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 5.85,
+      "bestBookmakers": [
+        "Superbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 5.65
+    },
+    {
       "eventRaw": "Independiente del Valle x Libertad",
       "eventNormalized": "independiente del valle x libertad",
       "league": "Copa Libertadores",
@@ -1648,6 +1680,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 1.32,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 1.35,
           "oddBase": null,
           "liftPct": null
         },
@@ -1684,6 +1721,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 2.1,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 2.07,
           "oddBase": null,
@@ -1697,10 +1739,44 @@
       },
       "bestOdd": 2.1,
       "bestBookmakers": [
+        "Sportingbet",
         "Superbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 2.08
+    },
+    {
+      "eventRaw": "América de Cali x CA Tigre",
+      "eventNormalized": "america de cali x ca tigre",
+      "league": "Copa Sul-Americana",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T02:00:00.000Z",
+      "market": "1x2",
+      "outcome": "draw",
+      "selection": "Empate",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.19,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.2,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 3.05,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 3.2,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.19
     },
     {
       "eventRaw": "América de Cali x CA Tigre",
@@ -1714,6 +1790,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 4.15,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.9,
           "oddBase": null,
           "liftPct": null
         },
@@ -1750,13 +1831,18 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.61,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.65,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 1.61,
+          "odd": 1.59,
           "oddBase": null,
           "liftPct": null
         }
@@ -1767,6 +1853,44 @@
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 1.59
+    },
+    {
+      "eventRaw": "Deportivo Cuenca x CD Recoleta",
+      "eventNormalized": "deportivo cuenca x cd recoleta",
+      "league": "Copa Sul-Americana",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T02:00:00.000Z",
+      "market": "1x2",
+      "outcome": "away",
+      "selection": "CD Recoleta",
+      "odds": {
+        "Estrelabet": {
+          "odd": 6.4,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 6,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 6.4,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Superbet": {
+          "odd": 6.5,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 6.5,
+      "bestBookmakers": [
+        "Superbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 6.4
     },
     {
       "eventRaw": "Freiburg x Aston Villa",
@@ -1780,6 +1904,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 5.3,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 4.8,
           "oddBase": null,
           "liftPct": null
         },
@@ -1816,15 +1945,20 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.9,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.85,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 3.85,
+      "bestOdd": 3.9,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 3.75
@@ -1841,6 +1975,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 1.86,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 1.9,
           "oddBase": null,
           "liftPct": null
         },
@@ -1863,6 +2002,72 @@
       "estrelaOdd": 1.86
     },
     {
+      "eventRaw": "Nacional-URU x Universitário",
+      "eventNormalized": "nacional uru x universitario",
+      "league": "Copa Libertadores",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T22:00:00.000Z",
+      "market": "1x2",
+      "outcome": "draw",
+      "selection": "Empate",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.54,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.6,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 3.5,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 3.6,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.54
+    },
+    {
+      "eventRaw": "Boston River x CD O´Higgins",
+      "eventNormalized": "boston river x cd o higgins",
+      "league": "Copa Sul-Americana",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T22:00:00.000Z",
+      "market": "1x2",
+      "outcome": "draw",
+      "selection": "Empate",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.38,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.5,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 3.35,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 3.5,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.38
+    },
+    {
       "eventRaw": "Olimpia x Vasco da Gama",
       "eventNormalized": "olimpia x vasco da gama",
       "league": "Copa Sul-Americana",
@@ -1877,6 +2082,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 2.1,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.98,
           "oddBase": null,
@@ -1888,9 +2098,9 @@
           "liftPct": null
         }
       },
-      "bestOdd": 2.02,
+      "bestOdd": 2.1,
       "bestBookmakers": [
-        "Superbet"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 2
@@ -1907,6 +2117,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 1.77,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 1.82,
           "oddBase": null,
           "liftPct": null
         },
@@ -1929,6 +2144,39 @@
       "estrelaOdd": 1.77
     },
     {
+      "eventRaw": "Santos x San Lorenzo",
+      "eventNormalized": "santos x san lorenzo",
+      "league": "Copa Sul-Americana",
+      "sport": "football",
+      "eventDatetime": "2026-05-20T22:00:00.000Z",
+      "market": "1x2",
+      "outcome": "draw",
+      "selection": "Empate",
+      "odds": {
+        "Estrelabet": {
+          "odd": 3.6,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.7,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 3.6,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 3.7,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.6
+    },
+    {
       "eventRaw": "Grêmio x Palestino",
       "eventNormalized": "gremio x palestino",
       "league": "Copa Sul-Americana",
@@ -1943,6 +2191,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.44,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.42,
           "oddBase": null,
@@ -1954,9 +2207,9 @@
           "liftPct": null
         }
       },
-      "bestOdd": 1.42,
+      "bestOdd": 1.44,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 1.4
@@ -1973,6 +2226,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 8.4,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 7.5,
           "oddBase": null,
           "liftPct": null
         },
@@ -2009,6 +2267,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 12.5,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 19.5,
           "oddBase": null,
@@ -2042,6 +2305,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 7.75,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 8,
           "oddBase": null,
@@ -2070,6 +2338,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.22,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.18,
           "oddBase": null,
@@ -2081,10 +2354,9 @@
           "liftPct": null
         }
       },
-      "bestOdd": 1.18,
+      "bestOdd": 1.22,
       "bestBookmakers": [
-        "Betano",
-        "Superbet"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 1.17
@@ -2100,6 +2372,11 @@
       "selection": "Flamengo",
       "odds": {
         "Estrelabet": {
+          "odd": 1.46,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
           "odd": 1.46,
           "oddBase": null,
           "liftPct": null
@@ -2137,15 +2414,20 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 4.6,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 4.35,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 4.35,
+      "bestOdd": 4.6,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 4.3
@@ -2165,13 +2447,18 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 7.75,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 8.75,
           "oddBase": null,
           "liftPct": null
         },
         "Superbet": {
-          "odd": 7.9,
+          "odd": 7.7,
           "oddBase": null,
           "liftPct": null
         }
@@ -2198,6 +2485,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 1.95,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 1.93,
           "oddBase": null,
@@ -2209,9 +2501,9 @@
           "liftPct": null
         }
       },
-      "bestOdd": 1.93,
+      "bestOdd": 1.95,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 1.88
@@ -2231,15 +2523,20 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 5.25,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 5.2,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 5.2,
+      "bestOdd": 5.25,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 5.05
@@ -2256,6 +2553,11 @@
       "odds": {
         "Estrelabet": {
           "odd": 10.4,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 9.25,
           "oddBase": null,
           "liftPct": null
         },
@@ -2292,6 +2594,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.4,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.4,
           "oddBase": null,
@@ -2300,6 +2607,7 @@
       },
       "bestOdd": 3.4,
       "bestBookmakers": [
+        "Sportingbet",
         "Betano"
       ],
       "estrelaIsBest": false,
@@ -2320,6 +2628,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 3.8,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 3.8,
           "oddBase": null,
@@ -2333,6 +2646,7 @@
       },
       "bestOdd": 3.8,
       "bestBookmakers": [
+        "Sportingbet",
         "Betano"
       ],
       "estrelaIsBest": false,
@@ -2353,6 +2667,11 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 2.45,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
           "odd": 2.37,
           "oddBase": null,
@@ -2366,43 +2685,44 @@
       },
       "bestOdd": 2.45,
       "bestBookmakers": [
+        "Sportingbet",
         "Superbet"
       ],
       "estrelaIsBest": false,
       "estrelaOdd": 2.4
     },
     {
-      "eventRaw": "Junior Barranquilla x Sporting Cristal",
-      "eventNormalized": "junior barranquilla x sporting cristal",
+      "eventRaw": "Cusco FC x Independiente Medellin",
+      "eventNormalized": "cusco fc x independiente medellin",
       "league": "Copa Libertadores",
       "sport": "football",
       "eventDatetime": "2026-05-21T02:00:00.000Z",
       "market": "1x2",
-      "outcome": "home",
-      "selection": "Junior Barranquilla",
+      "outcome": "draw",
+      "selection": "Empate",
       "odds": {
         "Estrelabet": {
-          "odd": 1.75,
+          "odd": 3.16,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 3.4,
           "oddBase": null,
           "liftPct": null
         },
         "Betano": {
-          "odd": 1.78,
-          "oddBase": null,
-          "liftPct": null
-        },
-        "Superbet": {
-          "odd": 1.75,
+          "odd": 3.1,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 1.78,
+      "bestOdd": 3.4,
       "bestBookmakers": [
-        "Betano"
+        "Sportingbet"
       ],
       "estrelaIsBest": false,
-      "estrelaOdd": 1.75
+      "estrelaOdd": 3.16
     },
     {
       "eventRaw": "Junior Barranquilla x Sporting Cristal",
@@ -2419,18 +2739,61 @@
           "oddBase": null,
           "liftPct": null
         },
+        "Sportingbet": {
+          "odd": 4,
+          "oddBase": null,
+          "liftPct": null
+        },
         "Betano": {
-          "odd": 3.9,
+          "odd": 3.85,
           "oddBase": null,
           "liftPct": null
         }
       },
-      "bestOdd": 3.9,
+      "bestOdd": 4,
+      "bestBookmakers": [
+        "Sportingbet"
+      ],
+      "estrelaIsBest": false,
+      "estrelaOdd": 3.85
+    },
+    {
+      "eventRaw": "Junior Barranquilla x Sporting Cristal",
+      "eventNormalized": "junior barranquilla x sporting cristal",
+      "league": "Copa Libertadores",
+      "sport": "football",
+      "eventDatetime": "2026-05-21T02:00:00.000Z",
+      "market": "1x2",
+      "outcome": "away",
+      "selection": "Sporting Cristal",
+      "odds": {
+        "Estrelabet": {
+          "odd": 4.9,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Sportingbet": {
+          "odd": 4.75,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Betano": {
+          "odd": 5.1,
+          "oddBase": null,
+          "liftPct": null
+        },
+        "Superbet": {
+          "odd": 4.8,
+          "oddBase": null,
+          "liftPct": null
+        }
+      },
+      "bestOdd": 5.1,
       "bestBookmakers": [
         "Betano"
       ],
       "estrelaIsBest": false,
-      "estrelaOdd": 3.85
+      "estrelaOdd": 4.9
     }
   ]
 }

@@ -8,8 +8,6 @@
  * Cada evento traz `markets[]`; pegamos o de `type === 'MR12'` (com SuperOdds turbinada)
  * preferencialmente, senão `MRES` (Resultado Final padrão). 3 selections por mercado.
  */
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { makeEntry, isFuture, sleep } from './base.js';
 
 const NAME = 'Betano';
@@ -17,24 +15,8 @@ const HOST = 'https://www.betano.bet.br';
 const SESSION_URL = `${HOST}/sport/futebol/`;
 const PARAMS = 'req=s,stnf,c,mb';
 
-/**
- * Betano protege a API com CDN/WAF que retorna 503 quando o fingerprint do browser
- * é compartilhado com outras sessões abertas. Por isso ele recebe um browser DEDICADO,
- * separado dos outros scrapers.
- */
-export async function scrapeBetano(_sharedBrowser) {
+export async function scrapeBetano(browser) {
   const results = [];
-  puppeteer.use(StealthPlugin());
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-blink-features=AutomationControlled',
-      '--lang=pt-BR,pt',
-    ],
-    defaultViewport: { width: 1440, height: 900 },
-  });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36');
   await page.setExtraHTTPHeaders({
@@ -124,7 +106,6 @@ export async function scrapeBetano(_sharedBrowser) {
     console.error(`[${NAME}] Erro: ${e.message}`);
   } finally {
     try { await page.close(); } catch {}
-    await Promise.race([browser.close(), new Promise(r => setTimeout(r, 3000))]).catch(()=>{});
   }
 
   console.log(`[${NAME}] ${results.length} odds coletadas`);

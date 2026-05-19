@@ -694,13 +694,50 @@ function escapeHtml(s) {
 }
 
 
+/**
+ * Botão "Atualizar": dispara coleta nova no servidor (Fly) e aguarda terminar.
+ *  1. POST /trigger
+ *  2. polling /health até `updatedAt` mudar (coleta nova terminada) ou timeout 3min
+ *  3. GET /data + re-renderiza
+ */
 async function refreshData() {
   const btn = document.querySelector('.btn-refresh');
+  const label = btn?.querySelector('span');
+  const originalLabel = label?.textContent || 'Atualizar';
   btn?.classList.add('spinning');
+  btn?.setAttribute('disabled', 'true');
+  setStatus('loading', 'Coletando…');
+
   try {
-    await loadData();   // re-fetch /data + re-render
+    // Snapshot atual: pra detectar quando o servidor terminou nova coleta
+    const before = await fetch(API_BASE + '/health').then(r => r.json()).catch(() => ({}));
+    const baseline = before.updatedAt || null;
+
+    // Dispara coleta
+    const trig = await fetch(API_BASE + '/trigger', { method: 'POST' }).then(r => r.json()).catch(() => ({status:'error'}));
+    if (trig.status === 'error') throw new Error('Falha ao disparar coleta');
+
+    // Polling — espera updatedAt mudar (ou 3 min)
+    const start = Date.now();
+    const TIMEOUT_MS = 180000;
+    while (Date.now() - start < TIMEOUT_MS) {
+      await new Promise(r => setTimeout(r, 4000));
+      const elapsed = Math.round((Date.now() - start) / 1000);
+      if (label) label.textContent = `Coletando… ${elapsed}s`;
+      const h = await fetch(API_BASE + '/health').then(r => r.json()).catch(() => ({}));
+      if (h.updatedAt && h.updatedAt !== baseline && h.isRunning === false) {
+        break;
+      }
+    }
+
+    await loadData();
+  } catch (e) {
+    console.error(e);
+    setStatus('error', 'Erro ao atualizar');
   } finally {
     btn?.classList.remove('spinning');
+    btn?.removeAttribute('disabled');
+    if (label) label.textContent = originalLabel;
   }
 }
 

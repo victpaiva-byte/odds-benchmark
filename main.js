@@ -12,26 +12,28 @@ import { dirname, join } from 'path';
 import { scrapeSuperbet }   from './scrapers/superbet.js';
 import { scrapeBetano }     from './scrapers/betano.js';
 import { scrapeSportingbet } from './scrapers/sportingbet.js';
-import { scrapeBet365 }     from './scrapers/bet365.js';
 import { scrapeEstrelabet } from './scrapers/estrelabet.js';
 import { buildComparison, buildSummary } from './matcher.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = join(__dirname, 'data', 'odds.json');
 
-// Scrapers ativos. Bet365 desativado — Cloudflare + WS binário inviável.
-const PARALLEL_SCRAPERS = [
+// Scrapers que usam fetch direto (não precisam de browser) — rodam imediatamente.
+const FETCH_SCRAPERS = [
   { name: 'Estrelabet',  fn: scrapeEstrelabet },
   { name: 'Sportingbet', fn: scrapeSportingbet },
-  { name: 'Betano',      fn: scrapeBetano },
   { name: 'Superbet',    fn: scrapeSuperbet },
 ];
-const SEQUENTIAL_SCRAPERS = [];
+// Scrapers que precisam de browser (Betano: WAF). Recebem a Promise do browser.
+const BROWSER_SCRAPERS = [
+  { name: 'Betano', fn: scrapeBetano },
+];
 
 export async function runCollection() {
   console.log('\n=== Iniciando coleta de Super Odds ===');
 
-  const browser = await puppeteer.launch({
+  // 1) Lança o browser EM PARALELO com os fetches diretos (não bloqueia).
+  const browserPromise = puppeteer.launch({
     headless: true,
     args: [
       '--no-sandbox',
@@ -43,36 +45,36 @@ export async function runCollection() {
     defaultViewport: { width: 1440, height: 900 },
   });
 
-  let allEntries = [];
+  const allEntries = [];
+  let browser = null;
 
   try {
-    // 1) Scrapers em paralelo (browser saturado é OK pra esses)
-    const parallel = await Promise.allSettled(
-      PARALLEL_SCRAPERS.map(s => s.fn(browser).catch(e => {
-        console.error(`[${s.name}] Erro fatal: ${e.message}`);
-        return [];
-      }))
-    );
-    for (const r of parallel) {
-      if (r.status === 'fulfilled') allEntries.push(...r.value);
-    }
+    // 2) Fetches diretos (sem esperar o browser) e scrapers do browser (esperam) em paralelo
+    const all = await Promise.allSettled([
+      ...FETCH_SCRAPERS.map(s =>
+        s.fn(null).catch(e => { console.error(`[${s.name}] Erro fatal: ${e.message}`); return []; })
+      ),
+      ...BROWSER_SCRAPERS.map(s =>
+        browserPromise
+          .then(b => { browser = b; return s.fn(b); })
+          .catch(e => { console.error(`[${s.name}] Erro fatal: ${e.message}`); return []; })
+      ),
+    ]);
 
-    // 2) Scrapers sequenciais (browser já idle, evita rate-limit do WAF)
-    for (const s of SEQUENTIAL_SCRAPERS) {
-      try {
-        const entries = await s.fn(browser);
-        allEntries.push(...entries);
-      } catch (e) {
-        console.error(`[${s.name}] Erro fatal: ${e.message}`);
-      }
+    for (const r of all) {
+      if (r.status === 'fulfilled' && Array.isArray(r.value)) allEntries.push(...r.value);
     }
   } finally {
-    // browser.close() pode travar com Estrelabet (Altenar mantém WS persistente).
-    // Race com timeout pra garantir que o processo libera os recursos.
-    await Promise.race([
-      browser.close(),
-      new Promise(resolve => setTimeout(resolve, 5000)),
-    ]).catch(() => {});
+    // Browser pode não ter sido inicializado se algo deu pau cedo
+    if (!browser) {
+      try { browser = await browserPromise; } catch {}
+    }
+    if (browser) {
+      await Promise.race([
+        browser.close(),
+        new Promise(resolve => setTimeout(resolve, 5000)),
+      ]).catch(() => {});
+    }
   }
 
   console.log(`\nTotal de entries brutos: ${allEntries.length}`);
@@ -89,10 +91,9 @@ export async function runCollection() {
     rows,
   };
 
-  // Guard: não sobrescrever um dado bom com uma coleta que falhou.
-  // Se < 20 entries, provavelmente algum scraper deu timeout — mantém o anterior.
+  // Guard: não sobrescrever um dado bom com uma coleta que falhou parcialmente.
   if (rows.length < 20) {
-    console.warn(`\n⚠️  Coleta retornou apenas ${rows.length} linhas — não sobrescrevendo data/odds.json (provável falha parcial)`);
+    console.warn(`\n⚠️  Coleta retornou apenas ${rows.length} linhas — não sobrescrevendo data/odds.json`);
     return payload;
   }
 
@@ -104,7 +105,6 @@ export async function runCollection() {
   return payload;
 }
 
-// Execução direta
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runCollection()
     .then(() => process.exit(0))

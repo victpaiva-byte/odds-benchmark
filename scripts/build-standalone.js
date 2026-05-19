@@ -29,11 +29,8 @@ html = html.replace(
   ''
 );
 
-// 2. Substitui o bloco entre os marker comments por leitura direta do __DATA__ embedado.
-html = html.replace(
-  /\/\/ \[STANDALONE:DATA_START\][\s\S]*?\/\/ \[STANDALONE:DATA_END\]/,
-  'const data = window.__DATA__;'
-);
+// 2. Standalone agora MANTÉM o fetch dinâmico (pra puxar dados frescos do Fly).
+//    O __DATA__ embedado é só fallback offline. Não substituímos mais o bloco.
 
 // 3. Remove a função triggerScrape (não há /trigger no standalone)
 html = html.replace(

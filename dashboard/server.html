@@ -68,6 +68,19 @@ header {
 .status-pill.error .dot { background: var(--red); }
 @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
 
+.session-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text-soft); font-size: 12px;
+}
+.session-pill input {
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 12px; color: var(--text);
+  width: 100px; padding: 0;
+}
+.session-pill input::placeholder { color: var(--muted); }
+
 .btn-refresh {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 12px; border-radius: 999px;
@@ -353,6 +366,10 @@ footer {
     </div>
   </div>
   <div class="header-meta">
+    <span class="session-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <input id="session-name" placeholder="Seu nome" maxlength="24" autocomplete="off">
+    </span>
     <span id="status" class="status-pill"><span class="dot"></span><span id="status-text">Carregando…</span></span>
     <span class="last" id="last-updated"></span>
     <button class="btn-refresh" onclick="refreshData()" title="Recarregar dados">
@@ -432,6 +449,27 @@ const RIVAL_BOOKMAKERS = BOOKMAKERS.filter(b => b !== "Estrelabet");
 //   - qualquer outro → assume mesmo host (Express local ou Fly servindo o HTML)
 const FLY_BASE = 'https://odds-benchmark-estrela.fly.dev';
 const API_BASE = /github\.io$/.test(location.host) ? FLY_BASE : '';
+
+// === Sessão local (anônima, sem login) ===
+// Cada browser tem session-id próprio + filtros persistentes no localStorage.
+// Spinner/coleta são percebidos só pela aba que disparou — outras não compartilham UI state.
+const SESSION = (() => {
+  const KEY = 'odds-benchmark-session';
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
+  if (!s.id) {
+    s.id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+    localStorage.setItem(KEY, JSON.stringify(s));
+  }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} };
+  return {
+    get id() { return s.id; },
+    get name() { return s.name || ''; },
+    setName(v) { s.name = (v || '').trim(); save(); },
+    get prefs() { return s.prefs || {}; },
+    setPref(k, v) { s.prefs = s.prefs || {}; s.prefs[k] = v; save(); },
+  };
+})();
 
 const STATE = {
   rows: [],
@@ -531,6 +569,7 @@ function renderKPIs() {
 
 function setView(view) {
   STATE.view = view;
+  SESSION.setPref('view', view);
   for (const tab of document.querySelectorAll('.tab')) {
     tab.classList.toggle('active', tab.dataset.view === view);
   }
@@ -540,6 +579,9 @@ function setView(view) {
 function applyFilters(rows) {
   const sport = document.getElementById('f-sport').value;
   const q = document.getElementById('f-search').value.toLowerCase().trim();
+  // Persiste filtros por sessão
+  SESSION.setPref('sport', sport);
+  SESSION.setPref('search', q);
   return rows.filter(r => {
     if (sport && r.sport !== sport) return false;
     if (q) {
@@ -732,9 +774,9 @@ async function refreshData() {
       throw new Error('Falha ao disparar coleta');
     }
 
-    // Polling — espera updatedAt mudar (ou 3 min)
+    // Polling — espera updatedAt mudar (ou 8 min — Betano demora muito no Fly)
     const start = Date.now();
-    const TIMEOUT_MS = 180000;
+    const TIMEOUT_MS = 480000;
     while (Date.now() - start < TIMEOUT_MS) {
       await new Promise(r => setTimeout(r, 4000));
       const elapsed = Math.round((Date.now() - start) / 1000);
@@ -755,6 +797,25 @@ async function refreshData() {
     if (label) label.textContent = originalLabel;
   }
 }
+
+// === Restaurar sessão ao iniciar ===
+function initSession() {
+  // Nome
+  const nameInput = document.getElementById('session-name');
+  nameInput.value = SESSION.name;
+  nameInput.addEventListener('input', e => SESSION.setName(e.target.value));
+
+  // Filtros restaurados
+  const p = SESSION.prefs || {};
+  if (p.view) STATE.view = p.view;
+  if (p.sport) document.getElementById('f-sport').value = p.sport;
+  if (p.search) document.getElementById('f-search').value = p.search;
+  // Atualiza visualmente a aba ativa
+  for (const tab of document.querySelectorAll('.tab')) {
+    tab.classList.toggle('active', tab.dataset.view === STATE.view);
+  }
+}
+initSession();
 
 // Auto-refresh a cada 10 minutos
 setInterval(loadData, 10 * 60 * 1000);

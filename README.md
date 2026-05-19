@@ -19,23 +19,20 @@ no mercado **Vencedor do encontro - Super Odds (1x2)**.
 
 | Ambiente | Branch | URL | Atualização |
 |---|---|---|---|
-| **Produção** | `prod` | https://odds-benchmark-estrela.fly.dev/ + https://victpaiva-byte.github.io/odds-benchmark/ | Push em `prod` dispara `deploy-prod.yml` (Fly) e `pages.yml` (Pages) |
-| **Staging (local)** | `main` | `http://localhost:8080` via `npm start` | Trabalho diário sem CI |
+| **Produção** | `main` | https://odds-benchmark-estrela.fly.dev/ + https://victpaiva-byte.github.io/odds-benchmark/ | Push em `main` dispara deploy automático (Fly + Pages) |
+| **Staging (local)** | branch da feature ou `dev` | `http://localhost:8080` via `npm start` | Sem CI |
 
 **Fluxo padrão:**
 ```bash
-# 1. Trabalha no main (staging)
-git checkout main
+# 1. Trabalha numa branch separada
+git checkout -b feat/minha-coisa
 # ...edits...
-npm start                              # testa local
-git add -A && git commit -m "..."
-git push                               # só atualiza main no GitHub (staging)
+npm start                              # testa local em http://localhost:8080
 
-# 2. Quando estável, promove pra prod
-git checkout prod
-git merge main
+# 2. Quando estável, merge no main
+git checkout main
+git merge feat/minha-coisa
 git push                               # dispara deploy-prod.yml (Fly) + pages.yml (Pages)
-git checkout main                      # volta pra staging
 ```
 
 ## Como rodar

@@ -1,8 +1,11 @@
 /**
- * Sportingbet — "Cotas Aumentadas" via API CDS da Entain.
- * Endpoint: /cds-api/bettingoffer/fixtures com isPriceBoost=true
- * Cada option em fixture.optionMarkets[].options[] tem price.odds (base)
- * e, quando boost, boostedPrice.odds (aumentada).
+ * Sportingbet — odds 1x2 ("Resultado da Partida") via API CDS Entain.
+ *
+ * Endpoint: /cds-api/bettingoffer/fixtures (sem filtro isPriceBoost) →
+ * cada fixture vem com `optionMarkets` incluindo um mercado tipo
+ * "Resultado da Partida - VP (+2)" com 3 options: time A, X, time B.
+ *
+ * Cada outcome vira um entry independente (market='1x2', selection=name do option).
  */
 import { makeEntry, isFuture, sleep } from './base.js';
 
@@ -12,9 +15,21 @@ const ACCESS_ID = 'YTRhMjczYjctNTBlNy00MWZlLTliMGMtMWNkOWQxMThmZTI2';
 const SESSION_URL = `${HOST}/pt-br/sports`;
 
 const SPORTS = [
-  { sportId: 4,  label: 'football' },
-  { sportId: 7,  label: 'basketball' },
+  { sportId: 4, label: 'football' },
 ];
+
+// Mercado 1x2 principal da Sportingbet. O sufixo "- VP (+2)" identifica a variante
+// 3-way com empate. Excluímos "Resultado da Partida e Quais Equipes Marcam",
+// "1º Tempo - Resultado da Partida", etc.
+function isMatchResultMarket(name) {
+  const n = (name || '').trim();
+  if (!/^Resultado da Partida/i.test(n)) return false;
+  // Exclui combos e variantes de tempo
+  if (/e Quais/i.test(n)) return false;
+  if (/1º|2º|1o|2o/i.test(n)) return false;
+  if (/Quem Vence/i.test(n)) return false;
+  return true;
+}
 
 function buildFixturesUrl(sportId) {
   const params = new URLSearchParams({
@@ -28,7 +43,6 @@ function buildFixturesUrl(sportId) {
     offerCategories: 'Gridable',
     fixtureCategories: 'Gridable,NonGridable,Other',
     sportIds: String(sportId),
-    isPriceBoost: 'true',
     statisticsModes: 'None',
     skip: '0',
     take: '100',
@@ -64,29 +78,30 @@ export async function scrapeSportingbet(browser) {
           const eventRaw = teamsFromFixture(fx);
           const league   = fx.competition?.name?.value || fx.tournament?.name?.value || '';
 
-          for (const market of (fx.optionMarkets || [])) {
-            for (const option of (market.options || [])) {
-              const oddBoosted = option.boostedPrice?.odds;
-              if (!(oddBoosted > 1.01)) continue;
-              const oddBase = option.price?.odds || null;
+          const market = (fx.optionMarkets || []).find(m => isMatchResultMarket(m.name?.value));
+          if (!market) continue;
+          // 1x2 clássico: 3 outcomes (Time A / Empate / Time B). Pula handicaps etc.
+          if ((market.options || []).length !== 3) continue;
 
-              results.push(makeEntry({
-                bookmaker: NAME,
-                eventRaw,
-                league,
-                sport: label,
-                eventDatetime: dt,
-                market: market.name?.value || 'Cota Aumentada',
-                selection: option.name?.value || eventRaw,
-                oddBoosted,
-                oddBase,
-              }));
-              added++;
-            }
+          for (const option of (market.options || [])) {
+            const odd = option.price?.odds;
+            if (!(odd > 1.01)) continue;
+            results.push(makeEntry({
+              bookmaker: NAME,
+              eventRaw,
+              league,
+              sport: label,
+              eventDatetime: dt,
+              market: '1x2',
+              selection: option.name?.value || '',
+              oddBoosted: odd,
+              oddBase: null,
+            }));
+            added++;
           }
         }
 
-        console.log(`[${NAME}] sportId=${sportId} (${label}): ${fixtures.length} fixtures, ${added} entries`);
+        console.log(`[${NAME}] sportId=${sportId} (${label}): ${fixtures.length} fixtures, ${added} entries 1x2`);
       } catch (e) {
         console.warn(`[${NAME}] sportId=${sportId} falhou: ${e.message}`);
       }

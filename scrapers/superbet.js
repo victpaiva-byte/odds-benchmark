@@ -21,7 +21,14 @@ export async function scrapeSuperbet(browser) {
   try {
     console.log(`[${NAME}] Abrindo ${URL}`);
     await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await sleep(8000);
+    // Em paralelo com os outros scrapers, a SPA da Superbet leva mais que 8s pra renderizar.
+    // Espera o próprio seletor — só falha se realmente não houver cards.
+    try {
+      await page.waitForSelector('.price-boost-page-card', { timeout: 30000 });
+    } catch {
+      console.log(`[${NAME}] Timeout esperando .price-boost-page-card`);
+    }
+    await sleep(1500); // pequena folga pra terminar de hidratar odds
 
     const items = await page.evaluate(() => {
       const out = [];

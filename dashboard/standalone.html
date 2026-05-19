@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Odds Benchmark — Estrelabet</title>
+<style>
+:root {
+  --red:        #dc2626;
+  --red-dark:   #991b1b;
+  --red-soft:   #fee2e2;
+  --green:      #16a34a;
+  --green-soft: #dcfce7;
+  --gold:       #d97706;
+  --gold-soft:  #fef3c7;
+  --blue:       #2563eb;
+  --blue-soft:  #dbeafe;
+  --bg:         #f8fafc;
+  --card:       #ffffff;
+  --border:     #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text:       #0f172a;
+  --text-soft:  #475569;
+  --muted:      #94a3b8;
+  --shadow-sm:  0 1px 2px rgba(15,23,42,.05);
+  --shadow:     0 4px 12px rgba(15,23,42,.06), 0 1px 3px rgba(15,23,42,.04);
+  --font:       -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+  --radius:     12px;
+  --radius-sm:  8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { font-family: var(--font); background: var(--bg); color: var(--text); }
+body { min-height: 100vh; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* ── Header ─────────────────────────────────────────── */
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  position: sticky; top: 0; z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+  color: #fff; display: grid; place-items: center;
+  font-size: 18px; font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+.brand h1 { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+.brand .tag { font-size: 11px; color: var(--text-soft); margin-top: 1px; }
+.header-meta { display: flex; align-items: center; gap: 14px; font-size: 12px; }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 999px;
+  background: var(--green-soft); color: #15803d;
+  font-weight: 600; font-size: 11px;
+}
+.status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.status-pill.loading { background: var(--gold-soft); color: var(--gold); }
+.status-pill.loading .dot { background: var(--gold); animation: pulse 1s infinite; }
+.status-pill.error { background: var(--red-soft); color: var(--red-dark); }
+.status-pill.error .dot { background: var(--red); }
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+
+.btn-refresh {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px;
+  background: var(--red); color: #fff;
+  border: none; cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  transition: background .15s, transform .1s;
+}
+.btn-refresh:hover  { background: var(--red-dark); }
+.btn-refresh:active { transform: scale(.96); }
+.btn-refresh.spinning svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Hero summary ───────────────────────────────────── */
+.hero {
+  padding: 28px 32px 8px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 1400px; margin: 0 auto;
+}
+.hero-title {
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  color: var(--text-soft);
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative; overflow: hidden;
+}
+.stat::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--border-strong);
+}
+.stat.win::before    { background: var(--green); }
+.stat.loss::before   { background: var(--red); }
+.stat.excl::before   { background: var(--gold); }
+.stat.gap::before    { background: var(--blue); }
+.stat-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-soft);
+  display: flex; align-items: center; gap: 6px;
+}
+.stat-value {
+  font-size: 32px; font-weight: 800; letter-spacing: -.02em;
+  margin: 6px 0 4px;
+  line-height: 1.1;
+}
+.stat.win  .stat-value { color: var(--green); }
+.stat.loss .stat-value { color: var(--red); }
+.stat.excl .stat-value { color: var(--gold); }
+.stat.gap  .stat-value { color: var(--blue); }
+.stat-desc { font-size: 12px; color: var(--text-soft); }
+
+/* ── Tabs ───────────────────────────────────────────── */
+.tabs {
+  max-width: 1400px; margin: 24px auto 0;
+  padding: 0 32px;
+  display: flex; gap: 4px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  background: none; border: none; cursor: pointer;
+  padding: 12px 18px;
+  font-size: 13px; font-weight: 600; color: var(--text-soft);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  display: inline-flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: color .15s, border-color .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); border-bottom-color: var(--red); }
+.tab .count {
+  display: inline-grid; place-items: center;
+  min-width: 22px; height: 20px; padding: 0 7px;
+  background: var(--bg); border-radius: 999px;
+  font-size: 11px; font-weight: 700; color: var(--text-soft);
+}
+.tab.active .count { background: var(--red); color: #fff; }
+
+/* ── Filters ────────────────────────────────────────── */
+.filters {
+  max-width: 1400px; margin: 0 auto;
+  padding: 16px 32px;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.filter-input {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: 13px;
+}
+.filter-input:focus-within { border-color: var(--text-soft); }
+.filter-input svg { color: var(--muted); }
+.filter-input select, .filter-input input {
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 13px; color: var(--text);
+  min-width: 160px;
+}
+.filter-input input::placeholder { color: var(--muted); }
+
+/* ── Cards grid ─────────────────────────────────────── */
+.cards {
+  max-width: 1400px; margin: 0 auto;
+  padding: 8px 32px 48px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .15s, transform .15s;
+}
+.card:hover { box-shadow: var(--shadow); }
+.card.win  { border-top: 3px solid var(--green); }
+.card.loss { border-top: 3px solid var(--red); }
+.card.excl { border-top: 3px solid var(--gold); }
+.card.gap  { border-top: 3px solid var(--blue); }
+
+.card-meta {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--text-soft);
+  min-width: 0;
+}
+.card-meta .when {
+  font-weight: 600;
+  min-width: 0; flex: 1 1 auto;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-meta .when strong { color: var(--text); }
+.card-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .02em;
+  text-transform: uppercase;
+  white-space: nowrap; flex-shrink: 0;
+}
+.card.win  .card-badge { background: var(--green-soft); color: #15803d; }
+.card.loss .card-badge { background: var(--red-soft);   color: var(--red-dark); }
+.card.excl .card-badge { background: var(--gold-soft);  color: #92400e; }
+.card.gap  .card-badge { background: var(--blue-soft);  color: #1e40af; }
+
+.card-event {
+  font-size: 15px; font-weight: 700; line-height: 1.25;
+  letter-spacing: -.01em;
+}
+.card-league {
+  font-size: 11px; color: var(--text-soft);
+  text-transform: uppercase; letter-spacing: .04em; font-weight: 600;
+}
+.card-market {
+  font-size: 12px; color: var(--text-soft);
+  background: var(--bg); border-radius: var(--radius-sm);
+  padding: 8px 11px;
+  max-height: 4.5em; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+}
+
+/* Odds comparison block */
+.odds-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px; align-items: stretch;
+}
+.odds-row.single { grid-template-columns: 1fr; }
+
+.odd-box {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 2px;
+  position: relative;
+}
+.odd-box .book {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-soft);
+}
+.odd-box .value {
+  font-size: 22px; font-weight: 800; letter-spacing: -.02em;
+  color: var(--text); line-height: 1;
+}
+.odd-box .lift {
+  font-size: 10px; font-weight: 600; color: var(--text-soft);
+}
+.odd-box.primary { background: #fff; border-color: var(--text); }
+.odd-box.primary .book { color: var(--red-dark); }
+.odd-box.primary.win   { border-color: var(--green); background: linear-gradient(180deg, var(--green-soft) 0%, #fff 80%); }
+.odd-box.primary.win   .value { color: #166534; }
+.odd-box.primary.loss  { border-color: var(--red);   background: linear-gradient(180deg, var(--red-soft) 0%, #fff 80%); }
+.odd-box.primary.loss  .value { color: var(--red-dark); }
+.odd-box.primary.excl  { border-color: var(--gold);  background: linear-gradient(180deg, var(--gold-soft) 0%, #fff 80%); }
+.odd-box.primary.excl  .value { color: #92400e; }
+
+.gap-indicator {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 4px; min-width: 56px;
+}
+.gap-indicator .arrow { font-size: 18px; line-height: 1; color: var(--muted); }
+.gap-indicator .label { font-size: 11px; font-weight: 700; text-align: center; line-height: 1.15; margin-top: 2px; }
+.gap-indicator.win  .arrow { color: var(--green); }
+.gap-indicator.win  .label { color: #15803d; }
+.gap-indicator.loss .arrow { color: var(--red); }
+.gap-indicator.loss .label { color: var(--red-dark); }
+.gap-indicator.note .arrow { color: var(--muted); font-size: 14px; font-weight: 700; }
+.gap-indicator.note .label { color: var(--text-soft); font-weight: 600; font-size: 10px; }
+
+/* "No estrela" cards have variable rivals — vertical stack */
+.rival-list { display: flex; flex-direction: column; gap: 6px; }
+.rival-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 11px;
+}
+.rival-row .book { font-size: 12px; font-weight: 700; color: var(--text); }
+.rival-row .val  { font-size: 16px; font-weight: 800; letter-spacing: -.01em; color: var(--text); }
+
+.exclusive-note {
+  font-size: 11px; color: var(--text-soft);
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 2px;
+}
+
+/* ── Empty / Loading ────────────────────────────────── */
+.empty {
+  grid-column: 1 / -1;
+  text-align: center; padding: 60px 24px;
+  color: var(--text-soft);
+}
+.empty .icon { font-size: 40px; margin-bottom: 10px; opacity: .6; }
+.empty h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.empty p  { font-size: 13px; }
+
+/* ── Footer ─────────────────────────────────────────── */
+footer {
+  max-width: 1400px; margin: 0 auto;
+  padding: 18px 32px 32px;
+  font-size: 11px; color: var(--muted);
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  header { padding: 14px 18px; gap: 12px; }
+  .hero, .tabs, .filters, .cards, footer { padding-left: 18px; padding-right: 18px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-value { font-size: 26px; }
+  .cards { grid-template-columns: 1fr; gap: 12px; }
+}
+@media (max-width: 540px) {
+  .filter-input select, .filter-input input { min-width: 120px; }
+  .header-meta .last { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">⚡</div>
+    <div>
+      <h1>Super Odds Benchmark</h1>
+      <div class="tag">Super Odds 1x2 da Estrelabet vs Sportingbet · Betano</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span id="status" class="status-pill"><span class="dot"></span><span id="status-text">Carregando…</span></span>
+    <span class="last" id="last-updated"></span>
+    <button class="btn-refresh" onclick="refreshData()" title="Recarregar dados">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" id="refresh-icon">
+        <path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>
+      </svg>
+      <span>Atualizar</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-title">Resultado da coleta</div>
+  <div class="stat-grid">
+    <div class="stat win">
+      <div class="stat-label">🏆 Estrela vence</div>
+      <div class="stat-value" id="kpi-wins">—</div>
+      <div class="stat-desc" id="kpi-wins-desc">mercados com a melhor odd</div>
+    </div>
+    <div class="stat loss">
+      <div class="stat-label">⚠️ Estrela perde</div>
+      <div class="stat-value" id="kpi-losses">—</div>
+      <div class="stat-desc" id="kpi-losses-desc">mercados onde rival oferece odd maior</div>
+    </div>
+    <div class="stat excl">
+      <div class="stat-label">⭐ Só Estrela</div>
+      <div class="stat-value" id="kpi-excl">—</div>
+      <div class="stat-desc">sem turbo equivalente nas rivais</div>
+    </div>
+    <div class="stat gap">
+      <div class="stat-label">🔍 Sem Estrela</div>
+      <div class="stat-value" id="kpi-gap">—</div>
+      <div class="stat-desc">turbinadas só dos concorrentes</div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-view="win"  onclick="setView('win')">🏆 Vencendo <span class="count" id="cnt-win">0</span></button>
+  <button class="tab"        data-view="loss" onclick="setView('loss')">⚠️ Perdendo <span class="count" id="cnt-loss">0</span></button>
+  <button class="tab"        data-view="excl" onclick="setView('excl')">⭐ Só Estrela <span class="count" id="cnt-excl">0</span></button>
+  <button class="tab"        data-view="gap"  onclick="setView('gap')">🔍 Sem Estrela <span class="count" id="cnt-gap">0</span></button>
+</nav>
+
+<div class="filters">
+  <label class="filter-input">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+    <select id="f-sport" onchange="render()">
+      <option value="">Todos esportes</option>
+      <option value="football">Futebol</option>
+      <option value="basketball">Basquete / NBA</option>
+    </select>
+  </label>
+  <label class="filter-input">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="f-search" type="text" placeholder="Buscar evento, time ou liga…" oninput="render()">
+  </label>
+</div>
+
+<main class="cards" id="cards">
+  <div class="empty"><div class="icon">⏳</div><h3>Carregando…</h3></div>
+</main>
+
+<footer>
+  <span id="footer-info">—</span>
+  <span>Compara o mercado 1x2 turbinado da Estrelabet (Super Odd) com 1x2 das rivais. Bet365 e Superbet fora deste benchmark (sem 1x2 padronizado disponível).</span>
+</footer>
+
+<script>window.__DATA__ = {"updatedAt":"2026-05-19T13:04:32.793Z","totalRows":75,"rawCount":496,"summary":{"totalMarkets":75,"estrelaIsBestCount":37,"estrelaNotBestCount":38,"winRate":49.3,"bestMarkets":[{"event":"Bournemouth x Manchester City","outcome":"home","selection":"Bournemouth","estrelaOdd":4.9,"bestOdd":4.9},{"event":"Bournemouth x Manchester City","outcome":"draw","selection":"Empate","estrelaOdd":4.6,"bestOdd":4.6},{"event":"Chelsea x Tottenham","outcome":"draw","selection":"Empate","estrelaOdd":3.77,"bestOdd":3.77},{"event":"Chelsea x Tottenham","outcome":"away","selection":"Tottenham","estrelaOdd":3.82,"bestOdd":3.82},{"event":"Coquimbo Unido x CD Deportes Tolima","outcome":"away","selection":"CD Deportes Tolima","estrelaOdd":3.5,"bestOdd":3.5},{"event":"Fluminense x Bolívar","outcome":"draw","selection":"Empate","estrelaOdd":6.8,"bestOdd":6.8},{"event":"Fluminense x Bolívar","outcome":"away","selection":"Bolívar","estrelaOdd":16,"bestOdd":16},{"event":"CA Rosario Central (ARG) x UCV FC","outcome":"home","selection":"CA Rosario Central (ARG)","estrelaOdd":2.51,"bestOdd":2.51},{"event":"Montevideo City Torque x Deportivo Riestra","outcome":"home","selection":"Montevideo City Torque","estrelaOdd":2.34,"bestOdd":2.34},{"event":"Montevideo City Torque x Deportivo Riestra","outcome":"away","selection":"Deportivo Riestra","estrelaOdd":3.77,"bestOdd":3.77}]},"rows":[{"eventRaw":"Bournemouth x Manchester City","eventNormalized":"bournemouth x manchester city","league":"Premier League","sport":"football","eventDatetime":"2026-05-19T18:30:00.000Z","market":"1x2","outcome":"home","selection":"Bournemouth","odds":{"Sportingbet":{"odd":4.33,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.9,"oddBase":null,"liftPct":null},"Betano":{"odd":4.85,"oddBase":null,"liftPct":null}},"bestOdd":4.9,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.9},{"eventRaw":"Bournemouth x Manchester City","eventNormalized":"bournemouth x manchester city","league":"Premier League","sport":"football","eventDatetime":"2026-05-19T18:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":4.33,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.6,"oddBase":null,"liftPct":null},"Betano":{"odd":4.55,"oddBase":null,"liftPct":null}},"bestOdd":4.6,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.6},{"eventRaw":"Chelsea x Tottenham","eventNormalized":"chelsea x tottenham","league":"Premier League","sport":"football","eventDatetime":"2026-05-19T19:15:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.77,"oddBase":null,"liftPct":null},"Betano":{"odd":3.65,"oddBase":null,"liftPct":null}},"bestOdd":3.77,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.77},{"eventRaw":"Chelsea x Tottenham","eventNormalized":"chelsea x tottenham","league":"Premier League","sport":"football","eventDatetime":"2026-05-19T19:15:00.000Z","market":"1x2","outcome":"away","selection":"Tottenham","odds":{"Sportingbet":{"odd":3.7,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.82,"oddBase":null,"liftPct":null},"Betano":{"odd":3.7,"oddBase":null,"liftPct":null}},"bestOdd":3.82,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.82},{"eventRaw":"Coquimbo Unido x CD Deportes Tolima","eventNormalized":"coquimbo unido x cd deportes tolima","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"away","selection":"CD Deportes Tolima","odds":{"Sportingbet":{"odd":3.2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.5,"oddBase":null,"liftPct":null},"Betano":{"odd":3.45,"oddBase":null,"liftPct":null}},"bestOdd":3.5,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.5},{"eventRaw":"Fluminense x Bolívar","eventNormalized":"fluminense x bolivar","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":6.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":6.8,"oddBase":null,"liftPct":null},"Betano":{"odd":6.5,"oddBase":null,"liftPct":null}},"bestOdd":6.8,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":6.8},{"eventRaw":"Fluminense x Bolívar","eventNormalized":"fluminense x bolivar","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"away","selection":"Bolívar","odds":{"Sportingbet":{"odd":13,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":16,"oddBase":null,"liftPct":null},"Betano":{"odd":16,"oddBase":null,"liftPct":null}},"bestOdd":16,"bestBookmakers":["Estrelabet","Betano"],"estrelaIsBest":true,"estrelaOdd":16},{"eventRaw":"CA Rosario Central (ARG) x UCV FC","eventNormalized":"ca rosario central arg x ucv fc","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"home","selection":"CA Rosario Central (ARG)","odds":{"Sportingbet":{"odd":2.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.51,"oddBase":null,"liftPct":null},"Betano":{"odd":2.47,"oddBase":null,"liftPct":null}},"bestOdd":2.51,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":2.51},{"eventRaw":"Montevideo City Torque x Deportivo Riestra","eventNormalized":"montevideo city torque x deportivo riestra","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Montevideo City Torque","odds":{"Sportingbet":{"odd":2.3,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.34,"oddBase":null,"liftPct":null},"Betano":{"odd":2.32,"oddBase":null,"liftPct":null}},"bestOdd":2.34,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":2.34},{"eventRaw":"Montevideo City Torque x Deportivo Riestra","eventNormalized":"montevideo city torque x deportivo riestra","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"away","selection":"Deportivo Riestra","odds":{"Sportingbet":{"odd":3.3,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.77,"oddBase":null,"liftPct":null},"Betano":{"odd":3.5,"oddBase":null,"liftPct":null}},"bestOdd":3.77,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.77},{"eventRaw":"Santa Fe x CA Platense (ARG)","eventNormalized":"santa fe x ca platense arg","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:00:00.000Z","market":"1x2","outcome":"home","selection":"Santa Fe","odds":{"Sportingbet":{"odd":2.25,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.32,"oddBase":null,"liftPct":null},"Betano":{"odd":2.3,"oddBase":null,"liftPct":null}},"bestOdd":2.32,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":2.32},{"eventRaw":"Santa Fe x CA Platense (ARG)","eventNormalized":"santa fe x ca platense arg","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:00:00.000Z","market":"1x2","outcome":"away","selection":"CA Platense (ARG)","odds":{"Sportingbet":{"odd":3.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.55,"oddBase":null,"liftPct":null},"Betano":{"odd":3.5,"oddBase":null,"liftPct":null}},"bestOdd":3.55,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.55},{"eventRaw":"São Paulo x Millionarios","eventNormalized":"sao paulo x millionarios","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T00:30:00.000Z","market":"1x2","outcome":"away","selection":"Millionarios","odds":{"Sportingbet":{"odd":5.25,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":5.5,"oddBase":null,"liftPct":null},"Betano":{"odd":5.3,"oddBase":null,"liftPct":null}},"bestOdd":5.5,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":5.5},{"eventRaw":"Ind. del Valle x Club Libertad Asuncion","eventNormalized":"ind del valle x club libertad asuncion","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":5.25,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":5.45,"oddBase":null,"liftPct":null},"Betano":{"odd":5.4,"oddBase":null,"liftPct":null}},"bestOdd":5.45,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":5.45},{"eventRaw":"América de Cali x CA Tigre","eventNormalized":"america de cali x ca tigre","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.3,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.32,"oddBase":null,"liftPct":null},"Betano":{"odd":3.2,"oddBase":null,"liftPct":null}},"bestOdd":3.32,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.32},{"eventRaw":"América de Cali x CA Tigre","eventNormalized":"america de cali x ca tigre","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"away","selection":"CA Tigre","odds":{"Sportingbet":{"odd":3.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.15,"oddBase":null,"liftPct":null},"Betano":{"odd":4.1,"oddBase":null,"liftPct":null}},"bestOdd":4.15,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.15},{"eventRaw":"CD Cuenca x CD Recoleta","eventNormalized":"cd cuenca x cd recoleta","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":4,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4,"oddBase":null,"liftPct":null},"Betano":{"odd":3.9,"oddBase":null,"liftPct":null}},"bestOdd":4,"bestBookmakers":["Sportingbet","Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4},{"eventRaw":"SCU Torreense x Casa Pia","eventNormalized":"scu torreense x casa pia","league":"Primeira Liga\t\t","sport":"football","eventDatetime":"2026-05-20T17:00:00.000Z","market":"1x2","outcome":"home","selection":"SCU Torreense","odds":{"Estrelabet":{"odd":2.48,"oddBase":null,"liftPct":null}},"bestOdd":2.48,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":2.48},{"eventRaw":"SCU Torreense x Casa Pia","eventNormalized":"scu torreense x casa pia","league":"Primeira Liga\t\t","sport":"football","eventDatetime":"2026-05-20T17:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Estrelabet":{"odd":3.19,"oddBase":null,"liftPct":null}},"bestOdd":3.19,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.19},{"eventRaw":"SCU Torreense x Casa Pia","eventNormalized":"scu torreense x casa pia","league":"Primeira Liga\t\t","sport":"football","eventDatetime":"2026-05-20T17:00:00.000Z","market":"1x2","outcome":"away","selection":"Casa Pia","odds":{"Estrelabet":{"odd":3,"oddBase":null,"liftPct":null}},"bestOdd":3,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3},{"eventRaw":"Freiburg x Aston Villa","eventNormalized":"freiburg x aston villa","league":"Liga Europa","sport":"football","eventDatetime":"2026-05-20T19:00:00.000Z","market":"1x2","outcome":"away","selection":"Aston Villa","odds":{"Sportingbet":{"odd":1.63,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.71,"oddBase":null,"liftPct":null},"Betano":{"odd":1.67,"oddBase":null,"liftPct":null}},"bestOdd":1.71,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":1.71},{"eventRaw":"Nacional x Universitario","eventNormalized":"nacional x universitario","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"away","selection":"Universitario","odds":{"Sportingbet":{"odd":4.2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.65,"oddBase":null,"liftPct":null},"Betano":{"odd":4.45,"oddBase":null,"liftPct":null}},"bestOdd":4.65,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.65},{"eventRaw":"Boston River x CD O'Higgins","eventNormalized":"boston river x cd o higgins","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Boston River","odds":{"Sportingbet":{"odd":3.9,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.1,"oddBase":null,"liftPct":null},"Betano":{"odd":4.1,"oddBase":null,"liftPct":null}},"bestOdd":4.1,"bestBookmakers":["Estrelabet","Betano"],"estrelaIsBest":true,"estrelaOdd":4.1},{"eventRaw":"Boston River x CD O'Higgins","eventNormalized":"boston river x cd o higgins","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"away","selection":"CD O'Higgins","odds":{"Sportingbet":{"odd":2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.02,"oddBase":null,"liftPct":null},"Betano":{"odd":1.98,"oddBase":null,"liftPct":null}},"bestOdd":2.02,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":2.02},{"eventRaw":"Santos x CA San Lorenzo de Almagro","eventNormalized":"santos x ca san lorenzo de almagro","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"away","selection":"CA San Lorenzo de Almagro","odds":{"Sportingbet":{"odd":4.4,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":5.2,"oddBase":null,"liftPct":null},"Betano":{"odd":4.6,"oddBase":null,"liftPct":null}},"bestOdd":5.2,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":5.2},{"eventRaw":"Club Olimpia Asuncion x Vasco","eventNormalized":"club olimpia asuncion x vasco","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"away","selection":"Vasco","odds":{"Sportingbet":{"odd":3,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.13,"oddBase":null,"liftPct":null},"Betano":{"odd":3.1,"oddBase":null,"liftPct":null}},"bestOdd":3.13,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.13},{"eventRaw":"Independiente Petrolero x Botafogo","eventNormalized":"independiente petrolero x botafogo","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:00:00.000Z","market":"1x2","outcome":"home","selection":"Independiente Petrolero","odds":{"Sportingbet":{"odd":12.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":18,"oddBase":null,"liftPct":null},"Betano":{"odd":17.5,"oddBase":null,"liftPct":null}},"bestOdd":18,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":18},{"eventRaw":"Independiente Petrolero x Botafogo","eventNormalized":"independiente petrolero x botafogo","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":8,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":8.1,"oddBase":null,"liftPct":null},"Betano":{"odd":7.3,"oddBase":null,"liftPct":null}},"bestOdd":8.1,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":8.1},{"eventRaw":"Grêmio x CD Palestino","eventNormalized":"gremio x cd palestino","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":4.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.95,"oddBase":null,"liftPct":null},"Betano":{"odd":4.65,"oddBase":null,"liftPct":null}},"bestOdd":4.95,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.95},{"eventRaw":"Grêmio x CD Palestino","eventNormalized":"gremio x cd palestino","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:00:00.000Z","market":"1x2","outcome":"away","selection":"CD Palestino","odds":{"Sportingbet":{"odd":7.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":8.4,"oddBase":null,"liftPct":null},"Betano":{"odd":8.25,"oddBase":null,"liftPct":null}},"bestOdd":8.4,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":8.4},{"eventRaw":"Flamengo x Estudiantes de La Plata","eventNormalized":"flamengo x estudiantes de la plata","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"home","selection":"Flamengo","odds":{"Sportingbet":{"odd":1.46,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.46,"oddBase":null,"liftPct":null},"Betano":{"odd":1.45,"oddBase":null,"liftPct":null}},"bestOdd":1.46,"bestBookmakers":["Sportingbet","Estrelabet"],"estrelaIsBest":true,"estrelaOdd":1.46},{"eventRaw":"Flamengo x Estudiantes de La Plata","eventNormalized":"flamengo x estudiantes de la plata","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"away","selection":"Estudiantes de La Plata","odds":{"Sportingbet":{"odd":7.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":8.5,"oddBase":null,"liftPct":null},"Betano":{"odd":8.25,"oddBase":null,"liftPct":null}},"bestOdd":8.5,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":8.5},{"eventRaw":"Palmeiras x Cerro Porteño","eventNormalized":"palmeiras x cerro porteno","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"home","selection":"Palmeiras","odds":{"Sportingbet":{"odd":1.35,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.35,"oddBase":null,"liftPct":null},"Betano":{"odd":1.34,"oddBase":null,"liftPct":null}},"bestOdd":1.35,"bestBookmakers":["Sportingbet","Estrelabet"],"estrelaIsBest":true,"estrelaOdd":1.35},{"eventRaw":"Palmeiras x Cerro Porteño","eventNormalized":"palmeiras x cerro porteno","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"away","selection":"Cerro Porteño","odds":{"Sportingbet":{"odd":9.25,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":10.4,"oddBase":null,"liftPct":null},"Betano":{"odd":10,"oddBase":null,"liftPct":null}},"bestOdd":10.4,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":10.4},{"eventRaw":"LDU Quito x CA Lanús","eventNormalized":"ldu quito x ca lanus","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.53,"oddBase":null,"liftPct":null},"Betano":{"odd":3.45,"oddBase":null,"liftPct":null}},"bestOdd":3.53,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":3.53},{"eventRaw":"LDU Quito x CA Lanús","eventNormalized":"ldu quito x ca lanus","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"away","selection":"CA Lanús","odds":{"Sportingbet":{"odd":4.2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.55,"oddBase":null,"liftPct":null},"Betano":{"odd":4.05,"oddBase":null,"liftPct":null}},"bestOdd":4.55,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.55},{"eventRaw":"River Plate x RB Bragantino","eventNormalized":"river plate x rb bragantino","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"away","selection":"RB Bragantino","odds":{"Sportingbet":{"odd":4,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.2,"oddBase":null,"liftPct":null},"Betano":{"odd":4.05,"oddBase":null,"liftPct":null}},"bestOdd":4.2,"bestBookmakers":["Estrelabet"],"estrelaIsBest":true,"estrelaOdd":4.2},{"eventRaw":"Bournemouth x Manchester City","eventNormalized":"bournemouth x manchester city","league":"Premier League","sport":"football","eventDatetime":"2026-05-19T18:30:00.000Z","market":"1x2","outcome":"away","selection":"Manchester City","odds":{"Sportingbet":{"odd":1.63,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.63,"oddBase":null,"liftPct":null},"Betano":{"odd":1.67,"oddBase":null,"liftPct":null}},"bestOdd":1.67,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":1.63},{"eventRaw":"Chelsea x Tottenham","eventNormalized":"chelsea x tottenham","league":"Premier League","sport":"football","eventDatetime":"2026-05-19T19:15:00.000Z","market":"1x2","outcome":"home","selection":"Chelsea","odds":{"Sportingbet":{"odd":1.9,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.97,"oddBase":null,"liftPct":null},"Betano":{"odd":1.98,"oddBase":null,"liftPct":null}},"bestOdd":1.98,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":1.97},{"eventRaw":"Coquimbo Unido x CD Deportes Tolima","eventNormalized":"coquimbo unido x cd deportes tolima","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Coquimbo Unido","odds":{"Sportingbet":{"odd":2.35,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.3,"oddBase":null,"liftPct":null},"Betano":{"odd":2.27,"oddBase":null,"liftPct":null}},"bestOdd":2.35,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":2.3},{"eventRaw":"Coquimbo Unido x CD Deportes Tolima","eventNormalized":"coquimbo unido x cd deportes tolima","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.25,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.18,"oddBase":null,"liftPct":null},"Betano":{"odd":3.1,"oddBase":null,"liftPct":null}},"bestOdd":3.25,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.18},{"eventRaw":"Fluminense x Bolívar","eventNormalized":"fluminense x bolivar","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Fluminense","odds":{"Sportingbet":{"odd":1.23,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.21,"oddBase":null,"liftPct":null},"Betano":{"odd":1.24,"oddBase":null,"liftPct":null}},"bestOdd":1.24,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":1.21},{"eventRaw":"CA Rosario Central (ARG) x UCV FC","eventNormalized":"ca rosario central arg x ucv fc","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":7.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":7.2,"oddBase":null,"liftPct":null},"Betano":{"odd":7.3,"oddBase":null,"liftPct":null}},"bestOdd":7.5,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":7.2},{"eventRaw":"CA Rosario Central (ARG) x UCV FC","eventNormalized":"ca rosario central arg x ucv fc","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"away","selection":"UCV FC","odds":{"Sportingbet":{"odd":16.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":18,"oddBase":null,"liftPct":null},"Betano":{"odd":19.5,"oddBase":null,"liftPct":null}},"bestOdd":19.5,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":18},{"eventRaw":"Montevideo City Torque x Deportivo Riestra","eventNormalized":"montevideo city torque x deportivo riestra","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-19T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.1,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.92,"oddBase":null,"liftPct":null},"Betano":{"odd":3,"oddBase":null,"liftPct":null}},"bestOdd":3.1,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":2.92},{"eventRaw":"Santa Fe x CA Platense (ARG)","eventNormalized":"santa fe x ca platense arg","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.1,"oddBase":null,"liftPct":null},"Betano":{"odd":3.05,"oddBase":null,"liftPct":null}},"bestOdd":3.2,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.1},{"eventRaw":"Always Ready x Mirassol","eventNormalized":"always ready x mirassol","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:00:00.000Z","market":"1x2","outcome":"home","selection":"Always Ready","odds":{"Sportingbet":{"odd":5.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":6.1,"oddBase":null,"liftPct":null},"Betano":{"odd":6.2,"oddBase":null,"liftPct":null}},"bestOdd":6.2,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":6.1},{"eventRaw":"Always Ready x Mirassol","eventNormalized":"always ready x mirassol","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.9,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4,"oddBase":null,"liftPct":null},"Betano":{"odd":4.1,"oddBase":null,"liftPct":null}},"bestOdd":4.1,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":4},{"eventRaw":"Always Ready x Mirassol","eventNormalized":"always ready x mirassol","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:00:00.000Z","market":"1x2","outcome":"away","selection":"Mirassol","odds":{"Sportingbet":{"odd":1.6,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.61,"oddBase":null,"liftPct":null},"Betano":{"odd":1.62,"oddBase":null,"liftPct":null}},"bestOdd":1.62,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":1.61},{"eventRaw":"CA Boca Juniors x Cruzeiro","eventNormalized":"ca boca juniors x cruzeiro","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:30:00.000Z","market":"1x2","outcome":"home","selection":"CA Boca Juniors","odds":{"Sportingbet":{"odd":2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.99,"oddBase":null,"liftPct":null},"Betano":{"odd":1.98,"oddBase":null,"liftPct":null}},"bestOdd":2,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":1.99},{"eventRaw":"CA Boca Juniors x Cruzeiro","eventNormalized":"ca boca juniors x cruzeiro","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.28,"oddBase":null,"liftPct":null},"Betano":{"odd":3.3,"oddBase":null,"liftPct":null}},"bestOdd":3.3,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":3.28},{"eventRaw":"CA Boca Juniors x Cruzeiro","eventNormalized":"ca boca juniors x cruzeiro","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T00:30:00.000Z","market":"1x2","outcome":"away","selection":"Cruzeiro","odds":{"Sportingbet":{"odd":4.4,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.4,"oddBase":null,"liftPct":null},"Betano":{"odd":4.6,"oddBase":null,"liftPct":null}},"bestOdd":4.6,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":4.4},{"eventRaw":"São Paulo x Millionarios","eventNormalized":"sao paulo x millionarios","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T00:30:00.000Z","market":"1x2","outcome":"home","selection":"São Paulo","odds":{"Sportingbet":{"odd":1.72,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.71,"oddBase":null,"liftPct":null},"Betano":{"odd":1.75,"oddBase":null,"liftPct":null}},"bestOdd":1.75,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":1.71},{"eventRaw":"São Paulo x Millionarios","eventNormalized":"sao paulo x millionarios","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T00:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.7,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.72,"oddBase":null,"liftPct":null},"Betano":{"odd":3.8,"oddBase":null,"liftPct":null}},"bestOdd":3.8,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":3.72},{"eventRaw":"Ind. del Valle x Club Libertad Asuncion","eventNormalized":"ind del valle x club libertad asuncion","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"home","selection":"Ind. del Valle","odds":{"Sportingbet":{"odd":1.38,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.37,"oddBase":null,"liftPct":null},"Betano":{"odd":1.37,"oddBase":null,"liftPct":null}},"bestOdd":1.38,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":1.37},{"eventRaw":"Ind. del Valle x Club Libertad Asuncion","eventNormalized":"ind del valle x club libertad asuncion","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"away","selection":"Club Libertad Asuncion","odds":{"Sportingbet":{"odd":7.75,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":8.3,"oddBase":null,"liftPct":null},"Betano":{"odd":9,"oddBase":null,"liftPct":null}},"bestOdd":9,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":8.3},{"eventRaw":"América de Cali x CA Tigre","eventNormalized":"america de cali x ca tigre","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"home","selection":"América de Cali","odds":{"Sportingbet":{"odd":2.05,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.03,"oddBase":null,"liftPct":null},"Betano":{"odd":2.02,"oddBase":null,"liftPct":null}},"bestOdd":2.05,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":2.03},{"eventRaw":"CD Cuenca x CD Recoleta","eventNormalized":"cd cuenca x cd recoleta","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"home","selection":"CD Cuenca","odds":{"Sportingbet":{"odd":1.62,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.59,"oddBase":null,"liftPct":null},"Betano":{"odd":1.62,"oddBase":null,"liftPct":null}},"bestOdd":1.62,"bestBookmakers":["Sportingbet","Betano"],"estrelaIsBest":false,"estrelaOdd":1.59},{"eventRaw":"CD Cuenca x CD Recoleta","eventNormalized":"cd cuenca x cd recoleta","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T02:00:00.000Z","market":"1x2","outcome":"away","selection":"CD Recoleta","odds":{"Sportingbet":{"odd":6,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":6.4,"oddBase":null,"liftPct":null},"Betano":{"odd":6.5,"oddBase":null,"liftPct":null}},"bestOdd":6.5,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":6.4},{"eventRaw":"Freiburg x Aston Villa","eventNormalized":"freiburg x aston villa","league":"Liga Europa","sport":"football","eventDatetime":"2026-05-20T19:00:00.000Z","market":"1x2","outcome":"home","selection":"Freiburg","odds":{"Sportingbet":{"odd":5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":5.35,"oddBase":null,"liftPct":null},"Betano":{"odd":5.4,"oddBase":null,"liftPct":null}},"bestOdd":5.4,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":5.35},{"eventRaw":"Freiburg x Aston Villa","eventNormalized":"freiburg x aston villa","league":"Liga Europa","sport":"football","eventDatetime":"2026-05-20T19:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":4,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.73,"oddBase":null,"liftPct":null},"Betano":{"odd":3.8,"oddBase":null,"liftPct":null}},"bestOdd":4,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.73},{"eventRaw":"Nacional x Universitario","eventNormalized":"nacional x universitario","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Nacional","odds":{"Sportingbet":{"odd":1.9,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.86,"oddBase":null,"liftPct":null},"Betano":{"odd":1.88,"oddBase":null,"liftPct":null}},"bestOdd":1.9,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":1.86},{"eventRaw":"Nacional x Universitario","eventNormalized":"nacional x universitario","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.6,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.54,"oddBase":null,"liftPct":null},"Betano":{"odd":3.4,"oddBase":null,"liftPct":null}},"bestOdd":3.6,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.54},{"eventRaw":"Boston River x CD O'Higgins","eventNormalized":"boston river x cd o higgins","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.5,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.38,"oddBase":null,"liftPct":null},"Betano":{"odd":3.35,"oddBase":null,"liftPct":null}},"bestOdd":3.5,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.38},{"eventRaw":"Santos x CA San Lorenzo de Almagro","eventNormalized":"santos x ca san lorenzo de almagro","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Santos","odds":{"Sportingbet":{"odd":1.82,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.77,"oddBase":null,"liftPct":null},"Betano":{"odd":1.83,"oddBase":null,"liftPct":null}},"bestOdd":1.83,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":1.77},{"eventRaw":"Santos x CA San Lorenzo de Almagro","eventNormalized":"santos x ca san lorenzo de almagro","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.7,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.6,"oddBase":null,"liftPct":null},"Betano":{"odd":3.5,"oddBase":null,"liftPct":null}},"bestOdd":3.7,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.6},{"eventRaw":"Club Olimpia Asuncion x Vasco","eventNormalized":"club olimpia asuncion x vasco","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"home","selection":"Club Olimpia Asuncion","odds":{"Sportingbet":{"odd":2.45,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.43,"oddBase":null,"liftPct":null},"Betano":{"odd":2.4,"oddBase":null,"liftPct":null}},"bestOdd":2.45,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":2.43},{"eventRaw":"Club Olimpia Asuncion x Vasco","eventNormalized":"club olimpia asuncion x vasco","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-20T22:00:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.3,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.29,"oddBase":null,"liftPct":null},"Betano":{"odd":3.2,"oddBase":null,"liftPct":null}},"bestOdd":3.3,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.29},{"eventRaw":"Independiente Petrolero x Botafogo","eventNormalized":"independiente petrolero x botafogo","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:00:00.000Z","market":"1x2","outcome":"away","selection":"Botafogo","odds":{"Sportingbet":{"odd":1.21,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.17,"oddBase":null,"liftPct":null},"Betano":{"odd":1.17,"oddBase":null,"liftPct":null}},"bestOdd":1.21,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":1.17},{"eventRaw":"Grêmio x CD Palestino","eventNormalized":"gremio x cd palestino","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:00:00.000Z","market":"1x2","outcome":"home","selection":"Grêmio","odds":{"Sportingbet":{"odd":1.44,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.4,"oddBase":null,"liftPct":null},"Betano":{"odd":1.4,"oddBase":null,"liftPct":null}},"bestOdd":1.44,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":1.4},{"eventRaw":"Flamengo x Estudiantes de La Plata","eventNormalized":"flamengo x estudiantes de la plata","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":4.6,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":4.3,"oddBase":null,"liftPct":null},"Betano":{"odd":4.15,"oddBase":null,"liftPct":null}},"bestOdd":4.6,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":4.3},{"eventRaw":"Palmeiras x Cerro Porteño","eventNormalized":"palmeiras x cerro porteno","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":5.25,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":5.05,"oddBase":null,"liftPct":null},"Betano":{"odd":4.9,"oddBase":null,"liftPct":null}},"bestOdd":5.25,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":5.05},{"eventRaw":"LDU Quito x CA Lanús","eventNormalized":"ldu quito x ca lanus","league":"CONMEBOL Libertadores","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"home","selection":"LDU Quito","odds":{"Sportingbet":{"odd":1.95,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":1.88,"oddBase":null,"liftPct":null},"Betano":{"odd":1.93,"oddBase":null,"liftPct":null}},"bestOdd":1.95,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":1.88},{"eventRaw":"River Plate x RB Bragantino","eventNormalized":"river plate x rb bragantino","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"home","selection":"River Plate","odds":{"Sportingbet":{"odd":2,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":2.01,"oddBase":null,"liftPct":null},"Betano":{"odd":2.02,"oddBase":null,"liftPct":null}},"bestOdd":2.02,"bestBookmakers":["Betano"],"estrelaIsBest":false,"estrelaOdd":2.01},{"eventRaw":"River Plate x RB Bragantino","eventNormalized":"river plate x rb bragantino","league":"CONMEBOL Sudamericana","sport":"football","eventDatetime":"2026-05-21T00:30:00.000Z","market":"1x2","outcome":"draw","selection":"Empate","odds":{"Sportingbet":{"odd":3.4,"oddBase":null,"liftPct":null},"Estrelabet":{"odd":3.34,"oddBase":null,"liftPct":null},"Betano":{"odd":3.25,"oddBase":null,"liftPct":null}},"bestOdd":3.4,"bestBookmakers":["Sportingbet"],"estrelaIsBest":false,"estrelaOdd":3.34}]};</script>
+<script>
+// Para a comparação 1x2 só Estrelabet (super odds) e Sportingbet (1x2 normal) estão
+// disponíveis. Betano bloqueia via WAF; Superbet/Bet365 não fornecem 1x2 puro.
+const BOOKMAKERS = ["Estrelabet","Sportingbet","Betano"];
+const RIVAL_BOOKMAKERS = BOOKMAKERS.filter(b => b !== "Estrelabet");
+
+const STATE = {
+  rows: [],
+  view: 'win',
+  buckets: { win: [], loss: [], excl: [], gap: [] },
+};
+
+async function loadData() {
+  setStatus('loading', 'Carregando…');
+  try {
+    const data = window.__DATA__;
+
+    STATE.rows = (data.rows || []).filter(r => isFuture(r.eventDatetime));
+    bucketize();
+    renderKPIs();
+    render();
+
+    const dt = data.updatedAt ? formatDT(data.updatedAt) : '—';
+    document.getElementById('last-updated').textContent = 'Atualizado ' + dt;
+    document.getElementById('footer-info').textContent =
+      'Coleta: ' + dt + ' · ' + (data.totalRows || 0) + ' mercados analisados';
+    setStatus('ok', 'Atualizado');
+  } catch (e) {
+    setStatus('error', 'Erro ao carregar');
+    console.error(e);
+    document.getElementById('cards').innerHTML =
+      '<div class="empty"><div class="icon">⚠️</div><h3>Erro ao carregar dados</h3><p>O servidor está rodando?</p></div>';
+  }
+}
+
+function setStatus(state, text) {
+  const el = document.getElementById('status');
+  el.className = 'status-pill' + (state === 'loading' ? ' loading' : state === 'error' ? ' error' : '');
+  document.getElementById('status-text').textContent = text;
+}
+
+function isFuture(dtStr) {
+  if (!dtStr) return false;
+  return new Date(dtStr) > new Date();
+}
+
+function classify(row) {
+  const hasEstrela = !!row.estrelaOdd;
+  const rivalsWithOdd = RIVAL_BOOKMAKERS.filter(b => row.odds[b]);
+  if (!hasEstrela)              return 'gap';        // só rivais
+  if (rivalsWithOdd.length === 0) return 'excl';     // só Estrela
+  if (row.estrelaIsBest)         return 'win';
+  return 'loss';
+}
+
+function bucketize() {
+  STATE.buckets = { win: [], loss: [], excl: [], gap: [] };
+  for (const r of STATE.rows) {
+    r._cat = classify(r);
+    STATE.buckets[r._cat].push(r);
+  }
+  // Ordenar cada bucket por relevância
+  STATE.buckets.win.sort((a, b) => gapPct(b, 'win') - gapPct(a, 'win'));
+  STATE.buckets.loss.sort((a, b) => gapPct(b, 'loss') - gapPct(a, 'loss'));
+  STATE.buckets.excl.sort((a, b) => (b.estrelaOdd || 0) - (a.estrelaOdd || 0));
+  STATE.buckets.gap.sort((a, b) => new Date(a.eventDatetime || '9999') - new Date(b.eventDatetime || '9999'));
+}
+
+function gapPct(row, view) {
+  const estrela = row.estrelaOdd || 0;
+  const rivals = RIVAL_BOOKMAKERS.map(b => row.odds[b]?.odd).filter(Boolean);
+  if (!rivals.length || !estrela) return 0;
+  const bestRival = Math.max(...rivals);
+  if (view === 'win')  return ((estrela - bestRival) / bestRival) * 100;
+  if (view === 'loss') return ((bestRival - estrela) / estrela) * 100;
+  return 0;
+}
+
+function renderKPIs() {
+  const b = STATE.buckets;
+  document.getElementById('kpi-wins').textContent   = b.win.length;
+  document.getElementById('kpi-losses').textContent = b.loss.length;
+  document.getElementById('kpi-excl').textContent   = b.excl.length;
+  document.getElementById('kpi-gap').textContent    = b.gap.length;
+
+  const ownTotal = b.win.length + b.loss.length + b.excl.length;
+  const winRate = ownTotal ? (b.win.length / ownTotal * 100) : 0;
+  document.getElementById('kpi-wins-desc').textContent =
+    ownTotal ? `${winRate.toFixed(0)}% dos mercados onde competimos` : 'sem comparação ainda';
+
+  const lossPct = ownTotal ? (b.loss.length / ownTotal * 100).toFixed(0) : 0;
+  document.getElementById('kpi-losses-desc').textContent =
+    b.loss.length ? `${lossPct}% — atenção do time de odds` : 'nenhum mercado perdido';
+
+  document.getElementById('cnt-win').textContent  = b.win.length;
+  document.getElementById('cnt-loss').textContent = b.loss.length;
+  document.getElementById('cnt-excl').textContent = b.excl.length;
+  document.getElementById('cnt-gap').textContent  = b.gap.length;
+}
+
+function setView(view) {
+  STATE.view = view;
+  for (const tab of document.querySelectorAll('.tab')) {
+    tab.classList.toggle('active', tab.dataset.view === view);
+  }
+  render();
+}
+
+function applyFilters(rows) {
+  const sport = document.getElementById('f-sport').value;
+  const q = document.getElementById('f-search').value.toLowerCase().trim();
+  return rows.filter(r => {
+    if (sport && r.sport !== sport) return false;
+    if (q) {
+      const hay = `${r.eventRaw||''} ${r.league||''} ${r.selection||''} ${r.market||''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function render() {
+  const rows = applyFilters(STATE.buckets[STATE.view] || []);
+  const el = document.getElementById('cards');
+  if (!rows.length) {
+    el.innerHTML = emptyState(STATE.view);
+    return;
+  }
+  el.innerHTML = rows.map(renderCard).join('');
+}
+
+function emptyState(view) {
+  const map = {
+    win:  ['🏆', 'Nenhuma vitória ainda', 'Quando a Estrela tiver a melhor odd em um mercado disputado, aparece aqui.'],
+    loss: ['🎉', 'Sem derrotas no momento', 'Em todos os mercados disputados a Estrela está com a melhor odd.'],
+    excl: ['⭐', 'Sem turbo exclusivos', 'Mercados que só a Estrela está oferecendo aparecem aqui.'],
+    gap:  ['🔍', 'Sem oportunidades pendentes', 'Mercados em que só os concorrentes turbinaram aparecem aqui.'],
+  };
+  const [icon, h, p] = map[view] || ['📭', 'Sem resultados', ''];
+  return `<div class="empty"><div class="icon">${icon}</div><h3>${h}</h3><p>${p}</p></div>`;
+}
+
+function renderCard(row) {
+  const cat = row._cat;
+  const meta = `
+    <div class="card-meta">
+      <span class="when">${formatDTShort(row.eventDatetime)} · <strong>${escapeHtml(row.league || '—')}</strong></span>
+      ${cardBadge(cat)}
+    </div>
+  `;
+  const head = `
+    <div>
+      <div class="card-event">${escapeHtml(row.eventRaw || '—')}</div>
+    </div>
+    <div class="card-market">${escapeHtml(row.market || '—')}</div>
+  `;
+  let body = '';
+  if (cat === 'win' || cat === 'loss')  body = renderCompare(row, cat);
+  else if (cat === 'excl')              body = renderExclusive(row);
+  else                                  body = renderGap(row);
+
+  return `<article class="card ${cat}">${meta}${head}${body}</article>`;
+}
+
+function cardBadge(cat) {
+  const map = {
+    win:  '🏆 Estrela #1',
+    loss: '⚠️ Atrás',
+    excl: '⭐ Só Estrela',
+    gap:  '🔍 Sem Estrela',
+  };
+  return `<span class="card-badge">${map[cat] || ''}</span>`;
+}
+
+function renderCompare(row, cat) {
+  const estrela = row.odds['Estrelabet'];
+  const rivals = RIVAL_BOOKMAKERS
+    .map(b => ({ book: b, ...row.odds[b] }))
+    .filter(x => x.odd);
+  rivals.sort((a, b) => b.odd - a.odd);
+  const bestRival = rivals[0];
+
+  const gap = gapPct(row, cat);
+  // Gap > 35% costuma indicar matcher casando combos com mercados simples — não comparável.
+  const trustworthy = Math.abs(gap) <= 35;
+  const arrow = cat === 'win' ? '▲' : '▼';
+  const gapText = trustworthy
+    ? (cat === 'win'
+        ? `+${gap.toFixed(1)}% vs<br>${bestRival.book}`
+        : `−${gap.toFixed(1)}% vs<br>${bestRival.book}`)
+    : `mercados<br>diferentes`;
+
+  return `
+    <div class="odds-row">
+      ${oddBox('Estrelabet', estrela, true, cat)}
+      <div class="gap-indicator ${trustworthy ? cat : 'note'}">
+        <div class="arrow">${trustworthy ? arrow : '≠'}</div>
+        <div class="label">${gapText}</div>
+      </div>
+      ${oddBox(bestRival.book, bestRival, false)}
+    </div>
+  `;
+}
+
+function renderExclusive(row) {
+  const estrela = row.odds['Estrelabet'];
+  return `
+    <div class="odds-row single">
+      ${oddBox('Estrelabet', estrela, true, 'excl')}
+    </div>
+    <div class="exclusive-note">Nenhum concorrente turbinou esse mercado.</div>
+  `;
+}
+
+function renderGap(row) {
+  const rivals = RIVAL_BOOKMAKERS
+    .map(b => ({ book: b, ...row.odds[b] }))
+    .filter(x => x.odd);
+  rivals.sort((a, b) => b.odd - a.odd);
+  const items = rivals.map(r => `
+    <div class="rival-row">
+      <span class="book">${r.book}</span>
+      <span class="val">${r.odd.toFixed(2)}${r.liftPct ? `<span style="font-size:10px;color:var(--muted);font-weight:600;margin-left:6px">+${r.liftPct}%</span>` : ''}</span>
+    </div>
+  `).join('');
+  return `<div class="rival-list">${items}</div>`;
+}
+
+function oddBox(book, entry, isPrimary, status) {
+  if (!entry?.odd) {
+    return `<div class="odd-box"><div class="book">${book}</div><div class="value" style="color:var(--muted)">—</div></div>`;
+  }
+  const lift = entry.liftPct ? `<div class="lift">+${entry.liftPct}% vs odd base</div>` : '';
+  const cls = isPrimary ? `odd-box primary ${status || ''}` : 'odd-box';
+  return `
+    <div class="${cls}">
+      <div class="book">${book}</div>
+      <div class="value">${entry.odd.toFixed(2)}</div>
+      ${lift}
+    </div>
+  `;
+}
+
+function formatDT(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' +
+         d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+function formatDTShort(iso) {
+  if (!iso) return 'Sem horário';
+  const d = new Date(iso);
+  const today = new Date();
+  const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
+  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === today.toDateString())    return `<strong>Hoje</strong> ${time}`;
+  if (d.toDateString() === tomorrow.toDateString()) return `<strong>Amanhã</strong> ${time}`;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + time;
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+
+function refreshData() {
+  const btn = document.querySelector('.btn-refresh');
+  btn?.classList.add('spinning');
+  // Force-reload sem cache pra puxar versão mais recente do host estático (Lovable)
+  setTimeout(() => window.location.reload(), 200);
+}
+
+
+// Carga inicial
+loadData();
+</script>
+</body>
+</html>

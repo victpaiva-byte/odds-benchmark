@@ -1,95 +1,132 @@
 /**
- * Betano — "CA TURBINADA" / "Odds Turbinadas".
- * Usa a API interna `/api/sports/{SPORT}/hot/smartpicks` que popula o carrossel.
- * Estrutura: data.sports[].tabs[] (filtrar tab.title === 'Odds Turbinadas')
- *           → promoMarkets[] com title (evento), subtitle[] (legs do combo)
- *             e selections[] com price (boosted) e originalPrice (base).
+ * Betano — odds 1x2 ("Resultado Final") via API JSON interna.
+ *
+ * Endpoints:
+ *   /api/sports/FOOT/hot/trending/leagues             → lista de ligas em destaque
+ *   /api/sports/FOOT/hot/trending/leagues/{id}/events → eventos da liga com `markets`
+ *
+ * Cada evento traz `markets[]`; pegamos o de `type === 'MR12'` (com SuperOdds turbinada)
+ * preferencialmente, senão `MRES` (Resultado Final padrão). 3 selections por mercado.
  */
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { makeEntry, isFuture, sleep } from './base.js';
 
 const NAME = 'Betano';
 const HOST = 'https://www.betano.bet.br';
+const SESSION_URL = `${HOST}/sport/futebol/`;
+const PARAMS = 'req=s,stnf,c,mb';
 
-const SPORTS = [
-  { code: 'FOOT', label: 'football',   pageUrl: `${HOST}/sport/futebol/` },
-  { code: 'BASK', label: 'basketball', pageUrl: `${HOST}/sport/basquetebol/` },
-];
-
-const SMARTPICKS_TAB = 'Odds Turbinadas';
-
-export async function scrapeBetano(browser) {
+/**
+ * Betano protege a API com CDN/WAF que retorna 503 quando o fingerprint do browser
+ * é compartilhado com outras sessões abertas. Por isso ele recebe um browser DEDICADO,
+ * separado dos outros scrapers.
+ */
+export async function scrapeBetano(_sharedBrowser) {
   const results = [];
+  puppeteer.use(StealthPlugin());
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-blink-features=AutomationControlled',
+      '--lang=pt-BR,pt',
+    ],
+    defaultViewport: { width: 1440, height: 900 },
+  });
   const page = await browser.newPage();
+  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36');
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+    'Accept': 'application/json, text/plain, */*',
+  });
 
   try {
-    for (const sport of SPORTS) {
-      try {
-        console.log(`[${NAME}] Sessão em ${sport.pageUrl}`);
-        await page.goto(sport.pageUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
-        await sleep(3000);
-
-        const apiUrl = `${HOST}/api/sports/${sport.code}/hot/smartpicks?req=s,stnf,c,mb`;
-        const json = await page.evaluate(async (url) => {
-          const r = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'include' });
-          return r.ok ? r.json() : null;
-        }, apiUrl);
-
-        if (!json) {
-          console.warn(`[${NAME}] ${sport.code}: API smartpicks sem resposta`);
-          continue;
-        }
-
-        const sports = json?.data?.sports || [];
-        for (const s of sports) {
-          for (const tab of (s.tabs || [])) {
-            if (tab.title !== SMARTPICKS_TAB) continue;
-            for (const promo of (tab.promoMarkets || [])) {
-              const entries = promoToEntries(promo, sport.label);
-              results.push(...entries);
-            }
-          }
-        }
-
-        console.log(`[${NAME}] ${sport.code}: ${results.length} entries acumulados`);
-      } catch (e) {
-        console.warn(`[${NAME}] ${sport.code} falhou: ${e.message}`);
-      }
+    console.log(`[${NAME}] Sessão em ${SESSION_URL}`);
+    // networkidle2 espera os XHR de cookies/geo terminarem — em paralelo
+    // isso é necessário pra que o trending/leagues responda em vez de 401/302.
+    try {
+      await page.goto(SESSION_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+    } catch {
+      // se networkidle2 timeout, segue mesmo assim — pode ter carregado o suficiente
+      console.log(`[${NAME}] networkidle2 timeout, prosseguindo`);
     }
+    await sleep(3000);
+
+    // 1) Trending leagues — retry com backoff
+    let leagues = [];
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      const result = await page.evaluate(async (host, params) => {
+        try {
+          const r = await fetch(`${host}/api/sports/FOOT/hot/trending/leagues?${params}`, { credentials: 'include' });
+          if (r.status !== 200) return { status: r.status, leagues: [] };
+          const j = await r.json();
+          return { status: 200, leagues: j.data?.leagues || j.data || [] };
+        } catch { return { status: 0, leagues: [] }; }
+      }, HOST, PARAMS);
+      if (result.status === 200 && Array.isArray(result.leagues) && result.leagues.length) {
+        leagues = result.leagues;
+        break;
+      }
+      console.log(`[${NAME}] tentativa ${attempt}: status=${result.status}, aguardando...`);
+      await sleep(4000);
+    }
+
+    if (!Array.isArray(leagues) || !leagues.length) {
+      console.warn(`[${NAME}] sem trending leagues após retry`);
+      return results;
+    }
+
+    // 2) Eventos por liga
+    for (const league of leagues) {
+      const events = await page.evaluate(async (host, params, id) => {
+        try {
+          const r = await fetch(`${host}/api/sports/FOOT/hot/trending/leagues/${id}/events?${params}`, { credentials: 'include' });
+          const j = await r.json();
+          return j.data?.events || [];
+        } catch { return []; }
+      }, HOST, PARAMS, league.id);
+
+      let added = 0;
+      for (const ev of events) {
+        const dt = ev.startTime ? new Date(ev.startTime) : null;
+        if (dt && !isFuture(dt)) continue;
+
+        // Prioriza MR12 (com SuperOdd aplicada), senão MRES (Resultado Final padrão)
+        const market = (ev.markets || []).find(m => m.type === 'MR12')
+                    || (ev.markets || []).find(m => m.type === 'MRES');
+        if (!market || !Array.isArray(market.selections) || market.selections.length < 2) continue;
+
+        const eventRaw = (ev.name || ev.shortName || '').replace(/\s*-\s*/, ' x ').trim();
+        const leagueName = ev.leagueName || ev.leagueDescription || league.name || '';
+
+        for (const sel of market.selections) {
+          const odd = sel.price;
+          if (!(odd > 1.01)) continue;
+          results.push(makeEntry({
+            bookmaker: NAME,
+            eventRaw,
+            league: leagueName,
+            sport: 'football',
+            eventDatetime: dt,
+            market: '1x2',
+            selection: sel.fullName || sel.name,
+            oddBoosted: odd,
+            oddBase: null,
+          }));
+          added++;
+        }
+      }
+      console.log(`[${NAME}] liga "${league.name}" (${league.id}): ${events.length} events, ${added} entries 1x2`);
+    }
+  } catch (e) {
+    console.error(`[${NAME}] Erro: ${e.message}`);
   } finally {
-    await page.close();
+    try { await page.close(); } catch {}
+    await Promise.race([browser.close(), new Promise(r => setTimeout(r, 3000))]).catch(()=>{});
   }
 
   console.log(`[${NAME}] ${results.length} odds coletadas`);
   return results;
-}
-
-function promoToEntries(promo, sport) {
-  const eventRaw = (promo.title || '').replace(/\s+-\s+/, ' x ').trim();
-  if (!eventRaw) return [];
-
-  const market = (promo.subtitle || [])
-    .map(s => `${s.marketName}: ${s.selectionName}`.trim())
-    .filter(Boolean)
-    .join(' + ') || 'CA Turbinada';
-
-  const selections = Array.isArray(promo.selections) ? promo.selections : [];
-  const out = [];
-  for (const sel of selections) {
-    const oddBoosted = +sel.price;
-    const oddBase    = sel.originalPrice ? +sel.originalPrice : null;
-    if (!(oddBoosted > 1.01)) continue;
-
-    out.push(makeEntry({
-      bookmaker: 'Betano',
-      eventRaw,
-      league: '',
-      sport,
-      eventDatetime: null, // smartpicks não traz data; o matcher aceita null
-      market,
-      selection: sel.name || eventRaw,
-      oddBoosted,
-      oddBase,
-    }));
-  }
-  return out;
 }

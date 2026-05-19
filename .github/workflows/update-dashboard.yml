@@ -1,0 +1,55 @@
+name: Atualizar dashboard
+
+# Disparado manualmente pela aba "Actions" no GitHub.
+# Roda o scrape, regenera standalone.html + benchmark.pdf, e commita os artefatos.
+on:
+  workflow_dispatch:
+
+jobs:
+  scrape-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache Puppeteer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run scrape
+        run: node main.js
+        env:
+          # Necessário em runners Linux pra Chromium do Puppeteer
+          PUPPETEER_DISABLE_HEADLESS_WARNING: '1'
+
+      - name: Build standalone HTML
+        run: npm run build:standalone
+
+      - name: Build PDF
+        run: npm run build:pdf
+
+      - name: Commit artifacts
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/odds.json dashboard/standalone.html dashboard/benchmark.pdf
+          if git diff --cached --quiet; then
+            echo "Sem mudanças para commitar"
+          else
+            git commit -m "chore(data): atualização automática $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi

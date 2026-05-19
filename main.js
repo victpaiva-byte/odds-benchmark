@@ -19,12 +19,16 @@ import { buildComparison, buildSummary } from './matcher.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = join(__dirname, 'data', 'odds.json');
 
-const SCRAPERS = [
+// Scrapers em paralelo. Betano fica de fora — em paralelo o WAF dele responde 503;
+// é executado sequencialmente depois.
+const PARALLEL_SCRAPERS = [
   { name: 'Superbet',    fn: scrapeSuperbet },
-  { name: 'Betano',      fn: scrapeBetano },
   { name: 'Sportingbet', fn: scrapeSportingbet },
   { name: 'Bet365',      fn: scrapeBet365 },
   { name: 'Estrelabet',  fn: scrapeEstrelabet },
+];
+const SEQUENTIAL_SCRAPERS = [
+  { name: 'Betano', fn: scrapeBetano },
 ];
 
 export async function runCollection() {
@@ -45,16 +49,25 @@ export async function runCollection() {
   let allEntries = [];
 
   try {
-    // Roda scrapers em paralelo
-    const results = await Promise.allSettled(
-      SCRAPERS.map(s => s.fn(browser).catch(e => {
+    // 1) Scrapers em paralelo (browser saturado é OK pra esses)
+    const parallel = await Promise.allSettled(
+      PARALLEL_SCRAPERS.map(s => s.fn(browser).catch(e => {
         console.error(`[${s.name}] Erro fatal: ${e.message}`);
         return [];
       }))
     );
-
-    for (const r of results) {
+    for (const r of parallel) {
       if (r.status === 'fulfilled') allEntries.push(...r.value);
+    }
+
+    // 2) Scrapers sequenciais (browser já idle, evita rate-limit do WAF)
+    for (const s of SEQUENTIAL_SCRAPERS) {
+      try {
+        const entries = await s.fn(browser);
+        allEntries.push(...entries);
+      } catch (e) {
+        console.error(`[${s.name}] Erro fatal: ${e.message}`);
+      }
     }
   } finally {
     // browser.close() pode travar com Estrelabet (Altenar mantém WS persistente).

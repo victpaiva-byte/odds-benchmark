@@ -1,19 +1,18 @@
 {
   "name": "odds-benchmark",
   "version": "1.0.0",
-  "description": "Super Odds benchmark — Estrelabet vs concorrentes",
+  "description": "Super Odds 1x2 benchmark — Estrelabet vs concorrentes brasileiros",
   "type": "module",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
     "scrape": "node main.js",
-    "dev": "node --watch server.js"
+    "build:standalone": "node scripts/build-standalone.js",
+    "build:pdf": "node scripts/build-pdf.js",
+    "build:all": "node main.js && node scripts/build-standalone.js && node scripts/build-pdf.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "express": "^4.19.2",
     "puppeteer": "^24.42.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

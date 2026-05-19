@@ -1,5 +1,5 @@
 # Fly.io config — `flyctl launch --copy-config` ou `flyctl deploy`
-app = "odds-benchmark"
+app = "odds-benchmark-estrela"
 primary_region = "gru"  # São Paulo
 
 [build]

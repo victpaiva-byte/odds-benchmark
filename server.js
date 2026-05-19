@@ -20,6 +20,16 @@ const INTERVAL_MS = (parseInt(process.env.SCRAPE_INTERVAL_MINUTES) || 60) * 60 *
 const app = express();
 let isRunning = false;
 
+// CORS — libera requests do GitHub Pages (https://victpaiva-byte.github.io)
+// e qualquer origin (front estático pode estar em vários hosts).
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.get('/', (req, res) => {
   if (!existsSync(DASH_FILE)) return res.status(404).send('dashboard/server.html não encontrado');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');

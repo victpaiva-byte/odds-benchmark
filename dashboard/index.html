@@ -428,6 +428,12 @@ footer {
 const BOOKMAKERS = ["Estrelabet","Sportingbet","Betano"];
 const RIVAL_BOOKMAKERS = BOOKMAKERS.filter(b => b !== "Estrelabet");
 
+// Detecta onde o frontend está hospedado:
+//   - github.io      → faz fetch cross-origin pra API do Fly
+//   - qualquer outro → assume mesmo host (Express local ou Fly servindo o HTML)
+const FLY_BASE = 'https://odds-benchmark-estrela.fly.dev';
+const API_BASE = /github\.io$/.test(location.host) ? FLY_BASE : '';
+
 const STATE = {
   rows: [],
   view: 'win',
@@ -437,8 +443,7 @@ const STATE = {
 async function loadData() {
   setStatus('loading', 'Carregando…');
   try {
-    // Caminho relativo: funciona tanto em "/" quanto em subpath ("/u/UUID/p/5050/")
-    const res = await fetch("data?" + Date.now());
+    const res = await fetch(API_BASE + "/data?" + Date.now());
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 

@@ -19,3 +19,7 @@ primary_region = "gru"  # São Paulo
 [[vm]]
   size = "shared-cpu-1x"
   memory = "1gb"  # Puppeteer + Chromium precisa de ao menos 1GB
+
+[[mounts]]
+  source = "odds_data"
+  destination = "/app/data"

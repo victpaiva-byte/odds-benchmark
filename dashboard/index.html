@@ -436,7 +436,8 @@ const STATE = {
 async function loadData() {
   setStatus('loading', 'Carregando…');
   try {
-    const res = await fetch("/data?" + Date.now());
+    // Caminho relativo: funciona tanto em "/" quanto em subpath ("/u/UUID/p/5050/")
+    const res = await fetch("data?" + Date.now());
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
@@ -688,15 +689,18 @@ function escapeHtml(s) {
 
 async function triggerScrape() {
   // server-mode only; standalone build remove esta função
-  try { await fetch('/trigger', { method: 'POST' }); setTimeout(loadData, 5000); }
+  try { await fetch('trigger', { method: 'POST' }); setTimeout(loadData, 5000); }
   catch (e) { console.error(e); }
 }
 
-function refreshData() {
+async function refreshData() {
   const btn = document.querySelector('.btn-refresh');
   btn?.classList.add('spinning');
-  // Force-reload sem cache pra puxar versão mais recente do host estático (Lovable)
-  setTimeout(() => window.location.reload(), 200);
+  try {
+    await loadData();   // re-fetch /data + re-render
+  } finally {
+    btn?.classList.remove('spinning');
+  }
 }
 
 // Auto-refresh a cada 10 minutos

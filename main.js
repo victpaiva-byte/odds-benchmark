@@ -91,6 +91,14 @@ export async function runCollection() {
     summary,
     rows,
   };
+
+  // Guard: não sobrescrever um dado bom com uma coleta que falhou.
+  // Se < 20 entries, provavelmente algum scraper deu timeout — mantém o anterior.
+  if (rows.length < 20) {
+    console.warn(`\n⚠️  Coleta retornou apenas ${rows.length} linhas — não sobrescrevendo data/odds.json (provável falha parcial)`);
+    return payload;
+  }
+
   writeFileSync(DATA_FILE, JSON.stringify(payload, null, 2));
 
   console.log(`\n✓ Salvo em data/odds.json (${rows.length} linhas comparativas)`);

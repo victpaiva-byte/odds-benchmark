@@ -19,6 +19,8 @@ const INTERVAL_MS = (parseInt(process.env.SCRAPE_INTERVAL_MINUTES) || 60) * 60 *
 
 const app = express();
 let isRunning = false;
+let lastFinishedAt = 0;
+const COOLDOWN_MS = 3 * 60 * 1000;  // 3 min entre coletas — evita VM saturada
 
 // CORS — libera requests do GitHub Pages (https://victpaiva-byte.github.io)
 // e qualquer origin (front estático pode estar em vários hosts).
@@ -58,6 +60,11 @@ app.get('/health', (req, res) => {
 
 app.post('/trigger', async (req, res) => {
   if (isRunning) return res.status(409).json({ status: 'already_running' });
+  const sinceLast = Date.now() - lastFinishedAt;
+  if (lastFinishedAt && sinceLast < COOLDOWN_MS) {
+    const waitS = Math.ceil((COOLDOWN_MS - sinceLast) / 1000);
+    return res.status(429).json({ status: 'cooldown', wait_seconds: waitS });
+  }
   res.json({ status: 'started' });
   triggerCollection();
 });
@@ -71,6 +78,7 @@ async function triggerCollection() {
     console.error('Coleta falhou:', e.message);
   } finally {
     isRunning = false;
+    lastFinishedAt = Date.now();
   }
 }
 

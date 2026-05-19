@@ -718,8 +718,19 @@ async function refreshData() {
     const baseline = before.updatedAt || null;
 
     // Dispara coleta
-    const trig = await fetch(API_BASE + '/trigger', { method: 'POST' }).then(r => r.json()).catch(() => ({status:'error'}));
-    if (trig.status === 'error') throw new Error('Falha ao disparar coleta');
+    const trigRes = await fetch(API_BASE + '/trigger', { method: 'POST' });
+    const trig = await trigRes.json().catch(() => ({}));
+    if (trigRes.status === 429) {
+      setStatus('ok', `Aguarde ${trig.wait_seconds || '?'}s — coleta recente`);
+      await loadData();
+      return;
+    }
+    if (trigRes.status === 409) {
+      setStatus('loading', 'Coleta já em curso…');
+      // segue pro polling abaixo
+    } else if (!trigRes.ok) {
+      throw new Error('Falha ao disparar coleta');
+    }
 
     // Polling — espera updatedAt mudar (ou 3 min)
     const start = Date.now();

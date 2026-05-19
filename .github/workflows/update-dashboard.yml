@@ -14,6 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: prod
           fetch-depth: 1
 
       - name: Setup Node.js
@@ -46,10 +47,10 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add data/odds.json dashboard/standalone.html dashboard/benchmark.pdf
+          git add data/odds.json dashboard/index.html dashboard/standalone.html dashboard/benchmark.pdf
           if git diff --cached --quiet; then
             echo "Sem mudanças para commitar"
           else
             git commit -m "chore(data): atualização automática $(date -u +%Y-%m-%dT%H:%MZ)"
-            git push
+            git push origin HEAD:prod
           fi

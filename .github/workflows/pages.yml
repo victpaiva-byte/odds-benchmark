@@ -1,12 +1,10 @@
 name: Deploy GitHub Pages
 
-# Dispara em todo push pro main que afete o dashboard ou data.
+# Dispara em todo push pro branch `prod` (produção). Push em `main` é só
+# staging local e não atualiza o Pages.
 on:
   push:
-    branches: [main]
-    paths:
-      - 'dashboard/**'
-      - 'data/**'
+    branches: [prod]
   workflow_dispatch:
 
 permissions:
@@ -27,6 +25,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: prod
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

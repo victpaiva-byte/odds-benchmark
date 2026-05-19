@@ -14,9 +14,11 @@ import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT      = join(__dirname, '..');
-const TEMPLATE  = join(ROOT, 'dashboard', 'index.html');
+const TEMPLATE  = join(ROOT, 'dashboard', 'server.html');
 const DATA_FILE = join(ROOT, 'data', 'odds.json');
-const OUTPUT    = join(ROOT, 'dashboard', 'standalone.html');
+// Saímos em dois caminhos: standalone.html (legado) e index.html (entry point GH Pages).
+const OUTPUT    = join(ROOT, 'dashboard', 'index.html');
+const OUTPUT_LEGACY = join(ROOT, 'dashboard', 'standalone.html');
 
 let html = readFileSync(TEMPLATE, 'utf8');
 const data = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
@@ -68,8 +70,9 @@ for (const [label, needle, mustBeAbsent] of required) {
 }
 
 writeFileSync(OUTPUT, html);
+writeFileSync(OUTPUT_LEGACY, html);
 
 const sizeKB = (html.length / 1024).toFixed(1);
-console.log(`✓ ${OUTPUT}`);
+console.log(`✓ ${OUTPUT} (+ standalone.html)`);
 console.log(`  ${sizeKB} KB · ${data.totalRows} linhas · atualizado ${data.updatedAt}`);
 console.log(`  Estrelabet melhor: ${data.summary.estrelaIsBestCount}/${data.summary.totalMarkets} (${data.summary.winRate}%)`);

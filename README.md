@@ -90,7 +90,7 @@ O repo já vem com configs prontas pra três caminhos:
 │   ├── superbet.js               (legado, retorna combos — não usado no benchmark 1x2)
 │   └── bet365.js                 (best-effort, sempre 0 — Cloudflare + WS binário)
 ├── scripts/
-│   ├── build-standalone.js       Transforma dashboard/index.html → standalone single-file
+│   ├── build-standalone.js       Transforma dashboard/server.html → standalone single-file
 │   ├── build-pdf.js              Gera benchmark.pdf via Puppeteer
 │   ├── serve-static.js           Mini static server pra preview local (modo standalone)
 │   └── verify.js                 Re-consulta APIs ao vivo, compara com data/odds.json

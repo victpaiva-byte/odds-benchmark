@@ -13,7 +13,7 @@ import { runCollection } from './main.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_FILE  = join(__dirname, 'data', 'odds.json');
-const DASH_FILE  = join(__dirname, 'dashboard', 'index.html');
+const DASH_FILE  = join(__dirname, 'dashboard', 'server.html');
 const PORT       = process.env.SERVER_PORT || 8080;
 const INTERVAL_MS = (parseInt(process.env.SCRAPE_INTERVAL_MINUTES) || 60) * 60 * 1000;
 
@@ -21,7 +21,7 @@ const app = express();
 let isRunning = false;
 
 app.get('/', (req, res) => {
-  if (!existsSync(DASH_FILE)) return res.status(404).send('dashboard/index.html não encontrado');
+  if (!existsSync(DASH_FILE)) return res.status(404).send('dashboard/server.html não encontrado');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(readFileSync(DASH_FILE));
 });

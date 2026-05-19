@@ -44,19 +44,17 @@ export async function scrapeBetano(_sharedBrowser) {
 
   try {
     console.log(`[${NAME}] Sessão em ${SESSION_URL}`);
-    // networkidle2 espera os XHR de cookies/geo terminarem — em paralelo
-    // isso é necessário pra que o trending/leagues responda em vez de 401/302.
+    // domcontentloaded é ~30s mais rápido que networkidle2; sleep curto cobre cookies.
     try {
-      await page.goto(SESSION_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+      await page.goto(SESSION_URL, { waitUntil: 'domcontentloaded', timeout: 25000 });
     } catch {
-      // se networkidle2 timeout, segue mesmo assim — pode ter carregado o suficiente
-      console.log(`[${NAME}] networkidle2 timeout, prosseguindo`);
+      console.log(`[${NAME}] goto timeout, prosseguindo`);
     }
-    await sleep(3000);
+    await sleep(2500);
 
-    // 1) Trending leagues — retry com backoff
+    // 1) Trending leagues — 2 tentativas (era 4)
     let leagues = [];
-    for (let attempt = 1; attempt <= 4; attempt++) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
       const result = await page.evaluate(async (host, params) => {
         try {
           const r = await fetch(`${host}/api/sports/FOOT/hot/trending/leagues?${params}`, { credentials: 'include' });
@@ -70,24 +68,26 @@ export async function scrapeBetano(_sharedBrowser) {
         break;
       }
       console.log(`[${NAME}] tentativa ${attempt}: status=${result.status}, aguardando...`);
-      await sleep(4000);
+      await sleep(3000);
     }
 
     if (!Array.isArray(leagues) || !leagues.length) {
-      console.warn(`[${NAME}] sem trending leagues após retry`);
+      console.warn(`[${NAME}] sem trending leagues`);
       return results;
     }
 
-    // 2) Eventos por liga
-    for (const league of leagues) {
-      const events = await page.evaluate(async (host, params, id) => {
+    // 2) Eventos por liga — todas em PARALELO (era sequencial = 5 min)
+    const leagueResults = await Promise.all(leagues.map(league =>
+      page.evaluate(async (host, params, id) => {
         try {
           const r = await fetch(`${host}/api/sports/FOOT/hot/trending/leagues/${id}/events?${params}`, { credentials: 'include' });
           const j = await r.json();
           return j.data?.events || [];
         } catch { return []; }
-      }, HOST, PARAMS, league.id);
+      }, HOST, PARAMS, league.id).then(events => ({ league, events }))
+    ));
 
+    for (const { league, events } of leagueResults) {
       let added = 0;
       for (const ev of events) {
         const dt = ev.startTime ? new Date(ev.startTime) : null;

@@ -19,13 +19,12 @@ import { buildComparison, buildSummary } from './matcher.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = join(__dirname, 'data', 'odds.json');
 
-// Scrapers ativos. Superbet e Bet365 desativados — não trazem 1x2 padronizado
-// (Superbet só tem combos, Bet365 protegido por Cloudflare + WS binário).
-// Betano roda paralelo: tem browser dedicado, não compete pelos recursos do main.
+// Scrapers ativos. Bet365 desativado — Cloudflare + WS binário inviável.
 const PARALLEL_SCRAPERS = [
   { name: 'Estrelabet',  fn: scrapeEstrelabet },
   { name: 'Sportingbet', fn: scrapeSportingbet },
   { name: 'Betano',      fn: scrapeBetano },
+  { name: 'Superbet',    fn: scrapeSuperbet },
 ];
 const SEQUENTIAL_SCRAPERS = [];
 

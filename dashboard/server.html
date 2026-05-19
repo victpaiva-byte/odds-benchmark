@@ -386,7 +386,7 @@ footer {
     <div class="brand-mark">⚡</div>
     <div>
       <h1>Super Odds Benchmark</h1>
-      <div class="tag">Super Odds 1x2 da Estrelabet vs Sportingbet · Betano</div>
+      <div class="tag">Super Odds 1x2 da Estrelabet vs Sportingbet · Betano · Superbet</div>
     </div>
   </div>
   <div class="header-meta">
@@ -453,6 +453,7 @@ footer {
       <option value="">Comparar com todas as casas</option>
       <option value="Sportingbet">Comparar só com Sportingbet</option>
       <option value="Betano">Comparar só com Betano</option>
+      <option value="Superbet">Comparar só com Superbet</option>
     </select>
   </label>
   <label class="filter-input">
@@ -473,7 +474,7 @@ footer {
 <script>
 // Para a comparação 1x2 só Estrelabet (super odds) e Sportingbet (1x2 normal) estão
 // disponíveis. Betano bloqueia via WAF; Superbet/Bet365 não fornecem 1x2 puro.
-const BOOKMAKERS = ["Estrelabet","Sportingbet","Betano"];
+const BOOKMAKERS = ["Estrelabet","Sportingbet","Betano","Superbet"];
 const RIVAL_BOOKMAKERS = BOOKMAKERS.filter(b => b !== "Estrelabet");
 
 // Detecta onde o frontend está hospedado:

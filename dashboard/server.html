@@ -214,6 +214,7 @@ header {
 }
 .card:hover { box-shadow: var(--shadow); }
 .card.win  { border-top: 3px solid var(--green); }
+.card.tie  { border-top: 3px solid var(--muted); }
 .card.loss { border-top: 3px solid var(--red); }
 .card.excl { border-top: 3px solid var(--gold); }
 .card.gap  { border-top: 3px solid var(--blue); }
@@ -237,6 +238,7 @@ header {
   white-space: nowrap; flex-shrink: 0;
 }
 .card.win  .card-badge { background: var(--green-soft); color: #15803d; }
+.card.tie  .card-badge { background: #f1f5f9;           color: var(--text-soft); }
 .card.loss .card-badge { background: var(--red-soft);   color: var(--red-dark); }
 .card.excl .card-badge { background: var(--gold-soft);  color: #92400e; }
 .card.gap  .card-badge { background: var(--blue-soft);  color: #1e40af; }
@@ -329,6 +331,8 @@ header {
 .gap-indicator.loss .label { color: var(--red-dark); }
 .gap-indicator.note .arrow { color: var(--muted); font-size: 14px; font-weight: 700; }
 .gap-indicator.note .label { color: var(--text-soft); font-weight: 600; font-size: 10px; }
+.gap-indicator.tie  .arrow { color: var(--muted); font-size: 18px; font-weight: 700; }
+.gap-indicator.tie  .label { color: var(--text-soft); font-weight: 700; }
 
 /* "No estrela" cards have variable rivals — vertical stack */
 .odds-others {
@@ -447,6 +451,7 @@ footer {
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-view="win"  onclick="setView('win')">🏆 Vencendo <span class="count" id="cnt-win">0</span></button>
+  <button class="tab"        data-view="tie"  onclick="setView('tie')">🤝 Empates <span class="count" id="cnt-tie">0</span></button>
   <button class="tab"        data-view="loss" onclick="setView('loss')">⚠️ Perdendo <span class="count" id="cnt-loss">0</span></button>
   <button class="tab"        data-view="excl" onclick="setView('excl')">⭐ Só Estrela <span class="count" id="cnt-excl">0</span></button>
   <button class="tab"        data-view="gap"  onclick="setView('gap')">🔍 Sem Estrela <span class="count" id="cnt-gap">0</span></button>
@@ -524,7 +529,7 @@ const SESSION = (() => {
 const STATE = {
   rows: [],
   view: 'win',
-  buckets: { win: [], loss: [], excl: [], gap: [] },
+  buckets: { win: [], tie: [], loss: [], excl: [], gap: [] },
 };
 
 async function loadData() {
@@ -578,24 +583,25 @@ function isFuture(dtStr) {
 
 function classify(row) {
   const hasEstrela = !!row.estrelaOdd;
-  // Se filtro de rival ativo, considera só essa casa pra classificar
   const rivals = RIVAL_FILTER ? [RIVAL_FILTER] : RIVAL_BOOKMAKERS;
   const rivalsWithOdd = rivals.filter(b => row.odds[b]);
-  if (!hasEstrela)              return 'gap';        // só rivais
-  if (rivalsWithOdd.length === 0) return 'excl';     // só Estrela (na comparação atual)
+  if (!hasEstrela)              return 'gap';
+  if (rivalsWithOdd.length === 0) return 'excl';
   const rivalMax = Math.max(...rivalsWithOdd.map(b => row.odds[b].odd));
-  if (row.estrelaOdd >= rivalMax) return 'win';
+  // Tolerância de 0.01 pra arredondamento (ex: 1.50 vs 1.4999...)
+  if (row.estrelaOdd > rivalMax + 0.005) return 'win';
+  if (Math.abs(row.estrelaOdd - rivalMax) <= 0.005) return 'tie';
   return 'loss';
 }
 
 function bucketize() {
-  STATE.buckets = { win: [], loss: [], excl: [], gap: [] };
+  STATE.buckets = { win: [], tie: [], loss: [], excl: [], gap: [] };
   for (const r of STATE.rows) {
     r._cat = classify(r);
     STATE.buckets[r._cat].push(r);
   }
-  // Ordenar cada bucket por relevância
   STATE.buckets.win.sort((a, b) => gapPct(b, 'win') - gapPct(a, 'win'));
+  STATE.buckets.tie.sort((a, b) => (b.estrelaOdd || 0) - (a.estrelaOdd || 0));
   STATE.buckets.loss.sort((a, b) => gapPct(b, 'loss') - gapPct(a, 'loss'));
   STATE.buckets.excl.sort((a, b) => (b.estrelaOdd || 0) - (a.estrelaOdd || 0));
   STATE.buckets.gap.sort((a, b) => new Date(a.eventDatetime || '9999') - new Date(b.eventDatetime || '9999'));
@@ -620,7 +626,8 @@ function renderKPIs() {
   document.getElementById('kpi-excl').textContent   = b.excl.length;
   document.getElementById('kpi-gap').textContent    = b.gap.length;
 
-  const ownTotal = b.win.length + b.loss.length + b.excl.length;
+  // Disputados = vence + empata + perde (mercados onde competimos com alguém)
+  const ownTotal = b.win.length + b.tie.length + b.loss.length;
   const winRate = ownTotal ? (b.win.length / ownTotal * 100) : 0;
   document.getElementById('kpi-wins-desc').textContent =
     ownTotal ? `${winRate.toFixed(0)}% dos mercados onde competimos` : 'sem comparação ainda';
@@ -630,6 +637,7 @@ function renderKPIs() {
     b.loss.length ? `${lossPct}% — atenção do time de odds` : 'nenhum mercado perdido';
 
   document.getElementById('cnt-win').textContent  = b.win.length;
+  document.getElementById('cnt-tie').textContent  = b.tie.length;
   document.getElementById('cnt-loss').textContent = b.loss.length;
   document.getElementById('cnt-excl').textContent = b.excl.length;
   document.getElementById('cnt-gap').textContent  = b.gap.length;
@@ -680,8 +688,9 @@ function render() {
 
 function emptyState(view) {
   const map = {
-    win:  ['🏆', 'Nenhuma vitória ainda', 'Quando a Estrela tiver a melhor odd em um mercado disputado, aparece aqui.'],
-    loss: ['🎉', 'Sem derrotas no momento', 'Em todos os mercados disputados a Estrela está com a melhor odd.'],
+    win:  ['🏆', 'Nenhuma vitória ainda', 'Quando a Estrela tiver odd estritamente maior que todas as rivais, aparece aqui.'],
+    tie:  ['🤝', 'Nenhum empate', 'Mercados onde Estrela e melhor rival têm a MESMA odd aparecem aqui.'],
+    loss: ['🎉', 'Sem derrotas no momento', 'Em todos os mercados disputados a Estrela está em vantagem.'],
     excl: ['⭐', 'Sem turbo exclusivos', 'Mercados que só a Estrela está oferecendo aparecem aqui.'],
     gap:  ['🔍', 'Sem oportunidades pendentes', 'Mercados em que só os concorrentes turbinaram aparecem aqui.'],
   };
@@ -707,7 +716,7 @@ function renderCard(row) {
     </div>
   `;
   let body = '';
-  if (cat === 'win' || cat === 'loss')  body = renderCompare(row, cat);
+  if (cat === 'win' || cat === 'loss' || cat === 'tie')  body = renderCompare(row, cat);
   else if (cat === 'excl')              body = renderExclusive(row);
   else                                  body = renderGap(row);
 
@@ -723,6 +732,7 @@ function pickLabel(row) {
 function cardBadge(cat) {
   const map = {
     win:  '🏆 Estrela #1',
+    tie:  '🤝 Empate',
     loss: '⚠️ Atrás',
     excl: '⭐ Só Estrela',
     gap:  '🔍 Sem Estrela',
@@ -741,12 +751,19 @@ function renderCompare(row, cat) {
 
   const gap = gapPct(row, cat);
   const trustworthy = Math.abs(gap) <= 35;
-  const arrow = cat === 'win' ? '▲' : '▼';
-  const gapText = trustworthy
-    ? (cat === 'win'
-        ? `+${gap.toFixed(1)}% vs<br>${bestRival.book}`
-        : `−${gap.toFixed(1)}% vs<br>${bestRival.book}`)
-    : `mercados<br>diferentes`;
+  let arrow, gapText;
+  if (cat === 'tie') {
+    arrow = '=';
+    gapText = `mesma odd<br>que ${bestRival.book}`;
+  } else if (trustworthy) {
+    arrow = cat === 'win' ? '▲' : '▼';
+    gapText = cat === 'win'
+      ? `+${gap.toFixed(1)}% vs<br>${bestRival.book}`
+      : `−${gap.toFixed(1)}% vs<br>${bestRival.book}`;
+  } else {
+    arrow = '≠';
+    gapText = `mercados<br>diferentes`;
+  }
 
   // Outros rivais (além do melhor) ficam em linha compacta
   const others = rivals.slice(1);
